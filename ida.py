@@ -16,23 +16,20 @@ matplotlib.rc('font', **font)
 
 
 # %%
-G = 6.674e-11       # gravitational constanst
-au = 1.496e11       # astronomical unit
-mstar = 2.0**30     # mass of star
-mplanet = 1.0**24   # mass of orbiting planet
-r = 0.1*au          # radial position of planet
-
-h = 0.05            # scale height of disc
-
-epsilon = 5.68e-3*(r/au)**(-2.168)*mstar    # surface density of disc (from Crida 2009)
+G = 6.674e-11                               # gravitational constanst
+au = 1.496e11                               # astronomical unit
+mstar = 2.0**30                             # mass of star
+mplanet = 1.0**24                           # mass of orbiting planet
+r = 0.1*au                                  # radial position of planet
 omegak = np.sqrt(G*(mstar+mplanet)/r**3)    # Keplerian frequency
-
-# eccentricites
-e = np.arange(0, 1, 0.0001)
-ehat = e/h
+h = 0.05                                    # scale height of disc
+# sigma = 5.68e-3*(r/au)**(-2.168)*mstar    # surface density of disc (from Crida 2009)
+sigma = 17000*(r/au)**(-3/2)*mstar 
+e = np.arange(0, 1, 0.0001)                 # eccentricites
+ehat = e/h                                  # eccentricity divided by scale height of disc
 
 # equation 7 from Ida 2020
-t_wave = (mplanet/mstar)*(epsilon*r**2/mstar)*h**(-4)*omegak
+t_wave = (mplanet/mstar)*(sigma*r**2/mstar)*h**(-4)*omegak
 
 # equations tau_e, tau_a, and tau_m by Cresswell & Nelson 2008 as taken from Ida 2020
 tau_e_CN = 0.78*(1-0.14*ehat**2+0.06*ehat**3)**(-1)*t_wave                                      # equation 17 from Ida 2020
@@ -66,7 +63,7 @@ ax[0].set_xscale('log')
 ax[0].set_yscale('log')
 ax[0].set_ylabel(r'$\tau^{-1}_e$')
 ax[0].set_xlim(0.1, 10)
-ax[0].set_ylim(1e-3, 1e1)
+# ax[0].set_ylim(1e-3, 1e1)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
@@ -81,7 +78,7 @@ ax[1].set_xscale('log')
 ax[1].set_yscale('log')
 ax[1].set_ylabel(r'$\tau^{-1}_m$')
 ax[1].set_xlim(0.1, 10)
-ax[1].set_ylim(1e-4, 1e-1)
+# ax[1].set_ylim(1e-4, 1e-1)
 ax[1].tick_params(which='both', direction="in", top=True, right=True)
 ax[1].legend()
 
@@ -94,6 +91,8 @@ ax[2].set_yscale('log')
 ax[2].set_xlabel('e/h')
 ax[2].set_ylabel(r'$\tau^{-1}_a$')
 ax[2].set_xlim(0.1, 10)
-ax[2].set_ylim(1e-4, 1e-1)
+# ax[2].set_ylim(1e-4, 1e-1)
 ax[2].tick_params(which='both', direction="in", top=True, right=True)
 ax[2].legend()
+
+fig.savefig('ida2020_fig1.png', bbox_inches='tight')
