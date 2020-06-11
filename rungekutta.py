@@ -16,14 +16,13 @@ G = 6.674e-11                               # gravitational constanst
 au = 1.496e11                               # astronomical unit
 mstar = 2.0**30                             # mass of star
 mplanet = 1.0**24                           # mass of orbiting planet
-r = 0.1*au                                  # radial position of planet   
-omegak = np.sqrt(G*(mstar+mplanet)/r**3)    # Keplerian frequency      
-vorb = np.sqrt(G*(mstar+mplanet)/r)
-noutputs = 100000
-h = 1e14
+r = 0.1*au                                  # radial position of planet
+vorb = np.sqrt(G*(mstar+mplanet)/r)         # orbital speed
+noutputs = 100000                           # number of timesteps
+h = 1e14                                    # timestep
 
-W = np.array([[0,0,0,0,0,0],
-      [0,r,0,-vorb*1.1,0,0]])
+# initial position and velocity of star and planet [x,y,z,vx,vy,vz]
+W = np.array([[0,0,0,0,0,0],[0,r,0,-vorb*1.1,0,0]])
 
 # %%
 # force equation
@@ -53,22 +52,8 @@ def rungekutta(W):
 timer = timed()
 W_total = rungekutta(W) # 6 dimensional phase space for each particle at each timestep
 print(timed()-timer)
-
 # %%
 lim = 0.15
-fig, axes = plt.subplots(1, figsize=(8, 8))
-axes.set_xlim(-lim, lim)
-axes.set_ylim(-lim, lim)
-axes.set_aspect('equal')
-axes.set_xlabel('Distance (AU)')
-axes.set_ylabel('Distance (AU)')
-axes.scatter(W_total[-1,0,0]/au, W_total[-1,0,1]/au, color='gold', label='Star')
-axes.scatter(W_total[-1,1,0]/au, W_total[-1,1,1]/au, label='Planet')
-axes.plot(W_total[:,1,0]/au, W_total[:,1,1]/au, linewidth=0.2)
-axes.legend()
-# plt.savefig('solar0001.png', bbox_inches='tight')
-
-# %%
 fig, axes = plt.subplots(1, figsize=(9, 9))
 
 axes.set_xlim(-lim, lim)
@@ -86,9 +71,20 @@ def animate(i):
     planet.set_data(W_total[i,1,0]/au, W_total[i,1,1]/au)
     planetline.set_data(W_total[0:i,1,0]/au, W_total[0:i,1,1]/au)
     return star, planet, planetline
-
     
 anim = FuncAnimation(fig, animate, frames=noutputs, interval=1, blit=True)
 # anim.save('solar.gif')
-
+# %%
+lim = 0.15
+fig, axes = plt.subplots(1, figsize=(8, 8))
+axes.set_xlim(-lim, lim)
+axes.set_ylim(-lim, lim)
+axes.set_aspect('equal')
+axes.set_xlabel('Distance (AU)')
+axes.set_ylabel('Distance (AU)')
+axes.scatter(W_total[-1,0,0]/au, W_total[-1,0,1]/au, color='gold', label='Star')
+axes.scatter(W_total[-1,1,0]/au, W_total[-1,1,1]/au, label='Planet')
+axes.plot(W_total[:,1,0]/au, W_total[:,1,1]/au, linewidth=0.2)
+axes.legend()
+# plt.savefig('solar0001.png', bbox_inches='tight')
 # %%
