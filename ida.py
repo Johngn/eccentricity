@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-font = {'size':12}
+font = {'size':10}
 matplotlib.rc('font', **font)
 
 G = 6.674e-11                               # gravitational constanst
@@ -57,7 +57,7 @@ tau_m_mag = 1/(0.5/tau_a_mag - e**2/tau_e)           # equation 39 from Ida 2020
 
 
 
-fig, ax = plt.subplots(3, figsize=(6,10))
+fig, ax = plt.subplots(3, figsize=(6,12))
 
 # figure 1a from Ida 2020 - tau_e as a function of e/h
 ax[0].plot(ehat, 1/tau_e_CN*t_wave, label='CN08', c='blue')
@@ -102,7 +102,7 @@ ax[2].legend()
 
 # %%
 
-fig, ax = plt.subplots(3, figsize=(6,10))
+fig, ax = plt.subplots(3, figsize=(6,12))
 
 # tau_e as a function of e/h
 ax[0].plot(ehat, tau_e_CN*year, label='CN08', c='blue')
@@ -111,7 +111,7 @@ ax[0].set_xscale('log')
 ax[0].set_yscale('log')
 ax[0].set_ylabel(r'$\tau_e$ (yr)')
 ax[0].set_xlim(0.1, 10)
-# ax[0].set_ylim(1e-3, 1e1)
+ax[0].set_ylim(1e2, 1e5)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
@@ -139,8 +139,8 @@ ax[2].set_yscale('log')
 ax[2].set_xlabel('e/h')
 ax[2].set_ylabel(r'$\tau_a$ (yr)')
 ax[2].set_xlim(0.1, 10)
-# ax[2].set_ylim(1e-4, 1e-1)
+ax[2].set_ylim(1e4, 1e6)
 ax[2].tick_params(which='both', direction="in", top=True, right=True)
 ax[2].legend()
 
-fig.savefig('/home/john/Desktop/summerproject/img/tau_in_years.png', bbox_inches='tight')
+# fig.savefig('/home/john/Desktop/summerproject/img/tau_in_years.png', bbox_inches='tight')
