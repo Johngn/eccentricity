@@ -18,22 +18,23 @@ au = 1.496e11                               # astronomical unit
 year = 365.25*24.*60.*60.                   # year
 mstar = 2.0**30                             # mass of star
 mplanet = 1.0**24                           # mass of orbiting planet
-r = 10*au                                   # radial position of planet
+r = 1*au                                   # radial position of planet
 omegak = np.sqrt(G*(mstar+mplanet)/r**3)    # Keplerian frequency
 h = 0.05                                    # scale height of disc
-sigma = 17000*(r/au)**(-1)*mstar        # surface density of disc
-e = np.arange(0, 0.5, 0.0001)                 # eccentricites
+sigma = 17000*(r/au)**(-1)*mstar            # surface density of disc
+e = np.arange(0, 0.5, 0.0001)               # eccentricites
 ehat = e/h                                  # eccentricity divided by scale height of disc
 
 # equation 7 from Ida 2020
-t_wave = 1/((mplanet/mstar)*(sigma*r**2/mstar)*h**(-4)*omegak)
+t_wave = mstar/mplanet*mstar/sigma/r**2*h**(4)/omegak
 
 # equations for tau_e, tau_a, and tau_m by Cresswell & Nelson 2008 as taken from Ida 2020
-tau_e_CN = 1/(0.78*(1-0.14*ehat**2+0.06*ehat**3)**(-1)/t_wave)                       # equation 17 from Ida 2020
+# ehat = 0.05/h   
+tau_e_CN = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)                       # equation 17 from Ida 2020
+
+
 tau_m_CN = 1/((2.7+1.1*0.5)/(2)*h**2*(1-(ehat/2.02)**4)/(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/t_wave) # equation 18 from Ida 2020
 tau_a_CN = 1/(2/tau_m_CN+2*e**2/tau_e_CN)                                   # equation 16 from Ida 2020
-
-
 
 
 # p = -dln(sigma)/dln(r), q = -dln(T)/dln(r)
@@ -60,41 +61,41 @@ tau_m_mag = 1/(0.5/tau_a_mag - e**2/tau_e)           # equation 39 from Ida 2020
 fig, ax = plt.subplots(3, figsize=(6,12))
 
 # figure 1a from Ida 2020 - tau_e as a function of e/h
-ax[0].plot(ehat, 1/tau_e_CN*t_wave, label='CN08', c='blue')
-ax[0].plot(ehat, 1/tau_e*t_wave, label='IDA20', c='red')
+ax[0].plot(ehat, 1/tau_e_CN, label='CN08', c='blue')
+ax[0].plot(ehat, 1/tau_e, label='IDA20', c='red')
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
 ax[0].set_ylabel(r'$\tau^{-1}_e/t_{wave}^{-1}$')
 ax[0].set_xlim(0.1, 10)
-ax[0].set_ylim(1e-3, 1e1)
+# ax[0].set_ylim(1e-3, 1e1)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
 # figure 1b from Ida 2020 - tau_m as a function of e/h
-ax[1].plot(ehat, 1/tau_m_CN*t_wave, label='CN08', c='blue')
-ax[1].plot(ehat, -1/tau_m_CN*t_wave, c='blue', ls='--')
-ax[1].plot(ehat, 1/tau_m_red*t_wave, label='IDA20 p=1 q=0.5', c='red')
-ax[1].plot(ehat, -1/tau_m_red*t_wave, c='red', ls='--')
-ax[1].plot(ehat, 1/tau_m_mag*t_wave, label='IDA20 p=0.5 q=1', c='magenta')
-ax[1].plot(ehat, -1/tau_m_mag*t_wave, c='magenta', ls='--')
+ax[1].plot(ehat, 1/tau_m_CN, label='CN08', c='blue')
+ax[1].plot(ehat, -1/tau_m_CN, c='blue', ls='--')
+ax[1].plot(ehat, 1/tau_m_red, label='IDA20 p=1 q=0.5', c='red')
+ax[1].plot(ehat, -1/tau_m_red, c='red', ls='--')
+ax[1].plot(ehat, 1/tau_m_mag, label='IDA20 p=0.5 q=1', c='magenta')
+ax[1].plot(ehat, -1/tau_m_mag, c='magenta', ls='--')
 ax[1].set_xscale('log')
 ax[1].set_yscale('log')
 ax[1].set_ylabel(r'$\tau^{-1}_m/t_{wave}^{-1}$')
 ax[1].set_xlim(0.1, 10)
-ax[1].set_ylim(1e-4, 1e-1)
+# ax[1].set_ylim(1e-4, 1e-1)
 ax[1].tick_params(which='both', direction="in", top=True, right=True)
 ax[1].legend()
 
 # figure 1c from Ida 2020 - tau_a as a function of e/h
-ax[2].plot(ehat, 1/tau_a_CN*t_wave, label='CN08', c='blue')
-ax[2].plot(ehat, 1/tau_a_red*t_wave, label='IDA20 p=1 q=0.5', c='red')
-ax[2].plot(ehat, 1/tau_a_mag*t_wave, label='IDA20 p=0.5 q=1', c='magenta')
+ax[2].plot(ehat, 1/tau_a_CN, label='CN08', c='blue')
+ax[2].plot(ehat, 1/tau_a_red, label='IDA20 p=1 q=0.5', c='red')
+ax[2].plot(ehat, 1/tau_a_mag, label='IDA20 p=0.5 q=1', c='magenta')
 ax[2].set_xscale('log')
 ax[2].set_yscale('log')
 ax[2].set_xlabel('e/h')
 ax[2].set_ylabel(r'$\tau^{-1}_a/t_{wave}^{-1}$')
 ax[2].set_xlim(0.1, 10)
-ax[2].set_ylim(1e-4, 1e-1)
+# ax[2].set_ylim(1e-4, 1e-1)
 ax[2].tick_params(which='both', direction="in", top=True, right=True)
 ax[2].legend()
 
@@ -105,13 +106,13 @@ ax[2].legend()
 fig, ax = plt.subplots(3, figsize=(6,12))
 
 # tau_e as a function of e/h
-ax[0].plot(ehat, tau_e_CN*year, label='CN08', c='blue')
-ax[0].plot(ehat, tau_e*year, label='IDA20', c='red')
+ax[0].plot(e, tau_e_CN*year, label='CN08', c='blue')
+ax[0].plot(e, tau_e*year, label='IDA20', c='red')
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
 ax[0].set_ylabel(r'$\tau_e$ (yr)')
-ax[0].set_xlim(0.1, 10)
-ax[0].set_ylim(1e2, 1e5)
+# ax[0].set_xlim(0.1, 10)
+# ax[0].set_ylim(1e2, 1e5)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
@@ -139,8 +140,18 @@ ax[2].set_yscale('log')
 ax[2].set_xlabel('e/h')
 ax[2].set_ylabel(r'$\tau_a$ (yr)')
 ax[2].set_xlim(0.1, 10)
-ax[2].set_ylim(1e4, 1e6)
+# ax[2].set_ylim(1e4, 1e6)
 ax[2].tick_params(which='both', direction="in", top=True, right=True)
 ax[2].legend()
 
 # fig.savefig('/home/john/Desktop/summerproject/img/tau_in_years.png', bbox_inches='tight')
+
+# %%
+e0 = 0.05
+h = 0.05
+t_ecc = (1+(1/15)*(e0/h)**3)*t_wave/0.78
+# t_ecc = t_wave/0.78
+dt = 1
+de = -e0/t_ecc*dt
+# de = -e0*0.78/t_wave*dt
+e1 = e0+de
