@@ -29,7 +29,7 @@ for i in range(noutputs):
     
 fig, ax = plt.subplots(1, figsize=(8,6))
 
-ax.plot(np.arange(0,noutputs,1)*dt/year/2/np.pi, e_results)
+ax.plot(np.arange(0,noutputs,1)*dt/year, e_results)
 ax.set_xlabel('time')
 ax.set_ylabel('eccentricity')
 ax.set_xlim(0)

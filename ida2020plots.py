@@ -22,14 +22,14 @@ r = 1*au   # radial position of planet
 
 h = 0.05                                    # scale height of disc
 e = np.arange(0, 0.5, 0.005)                # eccentricites
-# e = 0
+# e = 0.5
 ehat = e/h                                  # eccentricity divided by scale height of disc
 i = np.arange(0, h*10, 0.0001)              # inclinations
 i = 0
 ihat = i/h                                  # inclinations divided by scale height of disc
 
 omegak = np.sqrt(G*(mstar+mplanet)/r**3)                # Keplerian frequency
-sigma = 17000*(r/au)**(-1)                              # surface density of disc
+sigma = 17000*(r/au)**(-3/2)                              # surface density of disc
 t_wave = mstar/mplanet*mstar/sigma/r**2*h**(4)/omegak   # equation 7 from Ida 2020
 
 # equations for tau_e, tau_a, and tau_m by Cresswell & Nelson 2008 as taken from Ida 2020
@@ -46,16 +46,16 @@ Cm = 6*(2*p-q+2)
 # equations for tau_e, tau_a, tau_m and tau_i by Ida 2020
 tau_e = 1/(0.780/t_wave*(1+1/15*(ehat**2+ihat**2)**(3/2))**(-1))            # equation D1 in Ida 2020
 tau_i = 1/(0.544/t_wave*(1+1/21.5*(ehat**2+ihat**2)**(3/2))**(-1))          # equation D2 in Ida 2020
-tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)                                 # equation D3 in Ida 2020
 tau_a = 1/(Ct*h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))**(-1)/t_wave)         # equation D4 in Ida 2020
+tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)                                 # equation D3 in Ida 2020
 
-
+# %%
 fig, ax = plt.subplots(2, figsize=(8,12))
 
 x = ehat
 
-ax[0].plot(x, tau_e_CN/year, label='CN08')
-ax[0].plot(x, tau_e/year, label=f'IDA20')
+ax[0].plot(x, 1/tau_e_CN*t_wave, label='CN08')
+ax[0].plot(x, 1/tau_e*t_wave, label=f'IDA20')
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
 ax[0].set_ylabel(r'$\tau_e$')
@@ -64,8 +64,8 @@ ax[0].set_xlim(0.1, 10)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
-ax[1].plot(x, tau_a_CN/year, label='CN08')
-ax[1].plot(x, tau_a/year, label=f'IDA20')
+ax[1].plot(x, 1/tau_a_CN*t_wave, label='CN08')
+ax[1].plot(x, 1/tau_a*t_wave, label=f'IDA20')
 ax[1].set_xscale('log')
 ax[1].set_yscale('log')
 ax[1].set_xlabel('e/h')
