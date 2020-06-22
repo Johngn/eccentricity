@@ -111,9 +111,8 @@ def rungekutta(W0):
         fc = force2(Wc)
         Wd = W0 + dt*fc
         fd = force2(Wd)    
-        W0 = W0 + dt/6*fa + dt/3*fb + dt/3*fc + dt/6*fd
-        
-        # print(W0)
+        W0 = W0 + dt/6*fa + dt/3*fb + dt/3*fc + dt/6*fd        
+        print(W0)
         
         W[i] = W0
         

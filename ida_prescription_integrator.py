@@ -35,3 +35,4 @@ ax.set_ylabel('eccentricity')
 ax.set_xlim(0)
 ax.set_ylim(0)
 ax.tick_params(which='both', direction="in", top=True, right=True)
+
