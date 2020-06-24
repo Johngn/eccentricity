@@ -50,29 +50,29 @@ tau_a = 1/(Ct*h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))**(-1)/t_wave)         # eq
 tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)                                 # equation D3 in Ida 2020
 
 # %%
-fig, ax = plt.subplots(2, figsize=(8,12))
+fig, ax = plt.subplots(2, figsize=(7,7))
 
 x = ehat
 
-ax[0].plot(x, 1/tau_e_CN*t_wave, label='CN08')
-ax[0].plot(x, 1/tau_e*t_wave, label=f'IDA20')
+ax[0].plot(x, tau_e/year, label='IDA20')
+ax[0].plot(x, tau_e_CN/year, label='CN08')
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
-ax[0].set_ylabel(r'$\tau_e$')
+ax[0].set_ylabel(r'$\tau_e$ (years)')
 # ax[0].set_ylabel(r'$\tau^{-1}_e/t_{wave}^{-1}$')
 ax[0].set_xlim(0.1, 10)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
-ax[1].plot(x, 1/tau_a_CN*t_wave, label='CN08')
-ax[1].plot(x, 1/tau_a*t_wave, label=f'IDA20')
+ax[1].plot(x, tau_a/year, label='IDA20')
+ax[1].plot(x, tau_a_CN/year, label='CN08')
 ax[1].set_xscale('log')
 ax[1].set_yscale('log')
 ax[1].set_xlabel('e/h')
-ax[1].set_ylabel(r'$\tau_a$')
+ax[1].set_ylabel(r'$\tau_a$ (years)')
 # ax[0].set_ylabel(r'$\tau^{-1}_a/t_{wave}^{-1}$')
 ax[1].set_xlim(0.1, 10)
 ax[1].tick_params(which='both', direction="in", top=True, right=True)
 ax[1].legend()
 
-# fig.savefig('/home/john/Desktop/summerproject/img/tau_diff_semimajoraxis.png', bbox_inches='tight')
+# fig.savefig('/home/john/Desktop/summerproject/img/eccentricity_timescales.png', bbox_inches='tight')

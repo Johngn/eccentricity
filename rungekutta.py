@@ -3,11 +3,12 @@
 """
 Created on Wed Jun 10 09:55:33 2020
 
-@author: john
+@author: johngillan
 """
 
 # %%
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from timeit import default_timer as timed
@@ -15,24 +16,26 @@ from timeit import default_timer as timed
 
 year = 365.25*24.*60.*60.
 au = 1.496e11
-m = 1.99e30
+m = 1.989e30
 
-G = 4*np.pi**2
-mstar = 1
-mplanet = 3e-6
-dt = 0.001
-a = 1
-lim = 2
+# G = 4*np.pi**2
+# mstar = 1
+# mplanet = 3e-6
+# dt = 0.001
+# a = 1
+# sigma = 17000*a**(-3/2)*au**2/m
+# lim = 2
 
 G = 6.674e-11
-mstar = 1.99e30
-mplanet = 6.0e24
+mstar = 1.989e30
+mplanet = 5.972e24
 dt = year*0.001
 a = au
-lim = au*5
+sigma = 17000*(a/au)**(-3/2)
+lim = au*1.5
 
-noutputs = 30
-totaltime = noutputs*dt
+noutputs = 10000000
+totaltime = noutputs*dt/year
 
 h = 0.05
 
@@ -40,7 +43,7 @@ e = 0.3
 ehat = e/h
 r_p = a*(1-e)
 r_a = a*(1+e)
-sigma = 17000*(a/au)**(-3/2)
+
 omegak = np.sqrt(G*(mstar)/a**3)
 
 t_wave = mstar/mplanet*mstar/sigma/a**2*h**4/omegak
@@ -55,89 +58,52 @@ tau_m = (0.5/tau_a-e**2/tau_e)**-1
 
 vorb = np.sqrt(G*mstar*(2/r_a-1/a))
 
-W0 = np.array([0,r_a,0,-vorb,0,0])
+W0 = np.array([0,r_a,-vorb,0])
 # %%
-# force equation
-def force(W):
-    x = W[0:3]
-    v = W[3:6]
+def acceleration(W0):
+    x = W0[0:2]
+    v = W0[2:5]
     r = np.linalg.norm(x)
+    vk = np.linalg.norm(v)
     
-    dvdt1 = -G*mstar*x/r**3
+    dvdtG = -G*mstar*x/r**3
+    
+    uv_r = x/r # unit vector in radial direction
+    uv_a = np.array([-uv_r[1], uv_r[0]]) # unit vector in azimuthal direction
+    vr = np.dot(uv_r, v) # radial velocity
+    vtheta = np.dot(uv_a, v) # azimuthal velocity
+    
+    dvdt1 = -2*(np.dot(v,x)*x)/r**2/tau_e # equation 15 in Creswell+Nelson 2008
+    # print('1: ', dvdt1)
+    # dvdt1 = -vk/2/tau_a*uv_a-vr/tau_e*uv_r-(vtheta-vk)/tau_e*uv_a # equation 46 in Ida 2020
+    # print('3: ', dvdt2)
     
     # print(dvdt1)
     
-    return np.hstack((v, dvdt1))
-
-def force2(W):
-    x = W[0:3]
-    v = W[3:6]
-    r = np.linalg.norm(x)
-    vmag = np.linalg.norm(v)
-    
-    u_norm = x/r
-    u_tang = np.array([-u_norm[1], u_norm[0], 0])
-    v_norm = np.dot(u_norm, v)
-    v_tang = np.dot(u_tang, v)
-    
-    # dvdt2 = -2*(np.dot(v,x)*x)/r**2/tau_e
-    # print(dvdt2)
-    # dvdt2 = -v/tau_m-2*v_norm/tau_e*u_norm
-    # print(dvdt2)
-    dvdt2 = -vmag/2/tau_a*u_tang-v_norm/tau_e*u_norm-(v_tang-vmag)/tau_e*u_tang
-    
-    # print(dvdt2)
-    
-    return np.hstack((v, dvdt2))
+    return np.hstack((v, dvdtG+dvdt1))
 
 def rungekutta(W0):
-    W = np.zeros((noutputs,6))
+    W = np.zeros((noutputs,4))
     for i in range(noutputs):
-        fa = force(W0)
+        fa = acceleration(W0)
         Wb = W0 + dt/2*fa
-        fb = force(Wb)
+        fb = acceleration(Wb)
         Wc = W0 + dt/2*fb
-        fc = force(Wc)
+        fc = acceleration(Wc)
         Wd = W0 + dt*fc
-        fd = force(Wd)    
+        fd = acceleration(Wd)    
         W0 = W0 + dt/6*fa + dt/3*fb + dt/3*fc + dt/6*fd
-        
-        # print(W0)
-        
-        fa = force2(W0)
-        Wb = W0 + dt/2*fa
-        fb = force2(Wb)
-        Wc = W0 + dt/2*fb
-        fc = force2(Wc)
-        Wd = W0 + dt*fc
-        fd = force2(Wd)    
-        W0 = W0 + dt/6*fa + dt/3*fb + dt/3*fc + dt/6*fd        
-        print(W0)
         
         W[i] = W0
         
-    return W
-
-def rungekutta2(W0):
-    W = np.zeros((noutputs,6))
-    for i in range(noutputs):        
-        fa = force2(W0)
-        Wb = W0 + dt/2*fa
-        fb = force2(Wb)
-        Wc = W0 + dt/2*fb
-        fc = force2(Wc)
-        Wd = W0 + dt*fc
-        fd = force2(Wd)    
-        W0 = W0 + dt/6*fa + dt/3*fb + dt/3*fc + dt/6*fd
-        
-        print(W0[3])
-        
-        W[i] = W0
     return W
 
 timer = timed()
 W = rungekutta(W0)
 print(timed()-timer)
+
+df = pd.DataFrame(W)
+df.to_csv('/home/john/Desktop/summerproject/data/10thousandyears.csv')
 # %%
 times = np.linspace(0,noutputs*dt,noutputs) # for displaying time elapsed in plot
 fig, ax = plt.subplots(1, figsize=(9, 9))
@@ -150,27 +116,34 @@ ax.set_ylabel('Distance (AU)')
 ax.grid()
 
 star, = ax.plot([], [], 'o')
-planet, = ax.plot([], [], 'o')
-planetline, = ax.plot([], [], lw=0.5, color='orange')
-text = ax.text(-lim+0.1, lim-0.2, s='', fontsize=15)
+planet, = ax.plot([], [], 'o', c='steelblue')
+planetline, = ax.plot([], [], lw=0.1, c='steelblue')
+text = ax.text(-lim+lim/4, +lim-lim/4, s='', fontsize=15)
 
 def animate(i):
     star.set_data(0,0)
     planet.set_data(W[i,0],W[i,1])
     planetline.set_data(W[0:i,0],W[0:i,1])
-    text.set_text('{:.1f} years'.format(times[i]))
+    text.set_text('{:.1f} years'.format(times[i]/year*1000))
     return star, planet, planetline, text
     
 anim = animation.FuncAnimation(fig, animate, frames=noutputs, interval=1, blit=True)
 # %%
+Wf = pd.read_csv('/home/john/Desktop/summerproject/data/10thousandyears.csv').values[:,1:5]
+
+W = Wf[0::1000]
+
+# %%
 fig, ax = plt.subplots(1, figsize=(8, 8))
+ax.set_title('{:.0f} years'.format(totaltime))
 ax.set_xlim(-lim, lim)
 ax.set_ylim(-lim, lim)
 ax.set_aspect('equal')
 ax.set_xlabel('Distance (AU)')
 ax.set_ylabel('Distance (AU)')
 ax.grid()
-ax.scatter(0,0)
-ax.scatter(W[-1,0], W[-1,1], c='orange')
-ax.plot(W[:,0], W[:,1], linewidth=0.1, c='orange')
-# plt.savefig('rg.png', bbox_inches='tight')
+ax.scatter(0,0, c='black')
+ax.scatter(W[-1,0], W[-1,1], c='steelblue')
+ax.plot(W[:,0], W[:,1], linewidth=0.01, c='steelblue')
+
+# plt.savefig('/home/john/Desktop/summerproject/img/10thousandyears.png', bbox_inches='tight')
