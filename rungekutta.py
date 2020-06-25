@@ -18,24 +18,24 @@ year = 365.25*24.*60.*60.
 au = 1.496e11
 m = 1.989e30
 
-# G = 4*np.pi**2
-# mstar = 1
-# mplanet = 3e-6
-# dt = 0.001
-# a = 1
-# sigma = 17000*a**(-3/2)*au**2/m
-# lim = 2
+G = 4*np.pi**2
+mstar = 1
+mplanet = 3e-5
+dt = 0.001
+a = 1
+sigma = 17000*a**(-3/2)*au**2/m
+lim = 1.5
 
-G = 6.674e-11
-mstar = 1.989e30
-mplanet = 5.972e24
-dt = year*0.001
-a = au
-sigma = 17000*(a/au)**(-3/2)
-lim = au*1.5
+# G = 6.674e-11
+# mstar = 1.989e30
+# mplanet = 5.972e25
+# dt = year*0.001
+# a = au
+# sigma = 17000*(a/au)**(-3/2)
+# lim = au*1.5
 
-noutputs = 10000000
-totaltime = noutputs*dt/year
+noutputs = 3000000
+totaltime = noutputs*dt
 
 h = 0.05
 
@@ -73,9 +73,9 @@ def acceleration(W0):
     vr = np.dot(uv_r, v) # radial velocity
     vtheta = np.dot(uv_a, v) # azimuthal velocity
     
-    dvdt1 = -2*(np.dot(v,x)*x)/r**2/tau_e # equation 15 in Creswell+Nelson 2008
+    # dvdt1 = -2*(np.dot(v,x)*x)/r**2/tau_e # equation 15 in Creswell+Nelson 2008
     # print('1: ', dvdt1)
-    # dvdt1 = -vk/2/tau_a*uv_a-vr/tau_e*uv_r-(vtheta-vk)/tau_e*uv_a # equation 46 in Ida 2020
+    dvdt1 = -vk/2/tau_a*uv_a-vr/tau_e*uv_r-(vtheta-vk)/tau_e*uv_a # equation 46 in Ida 2020
     # print('3: ', dvdt2)
     
     # print(dvdt1)
@@ -83,7 +83,9 @@ def acceleration(W0):
     return np.hstack((v, dvdtG+dvdt1))
 
 def rungekutta(W0):
+    
     W = np.zeros((noutputs,4))
+    
     for i in range(noutputs):
         fa = acceleration(W0)
         Wb = W0 + dt/2*fa
@@ -101,9 +103,6 @@ def rungekutta(W0):
 timer = timed()
 W = rungekutta(W0)
 print(timed()-timer)
-
-df = pd.DataFrame(W)
-df.to_csv('/home/john/Desktop/summerproject/data/10thousandyears.csv')
 # %%
 times = np.linspace(0,noutputs*dt,noutputs) # for displaying time elapsed in plot
 fig, ax = plt.subplots(1, figsize=(9, 9))
@@ -124,15 +123,10 @@ def animate(i):
     star.set_data(0,0)
     planet.set_data(W[i,0],W[i,1])
     planetline.set_data(W[0:i,0],W[0:i,1])
-    text.set_text('{:.1f} years'.format(times[i]/year*1000))
+    text.set_text('{:.1f} years'.format(times[i]))
     return star, planet, planetline, text
     
 anim = animation.FuncAnimation(fig, animate, frames=noutputs, interval=1, blit=True)
-# %%
-Wf = pd.read_csv('/home/john/Desktop/summerproject/data/10thousandyears.csv').values[:,1:5]
-
-W = Wf[0::1000]
-
 # %%
 fig, ax = plt.subplots(1, figsize=(8, 8))
 ax.set_title('{:.0f} years'.format(totaltime))
@@ -144,6 +138,32 @@ ax.set_ylabel('Distance (AU)')
 ax.grid()
 ax.scatter(0,0, c='black')
 ax.scatter(W[-1,0], W[-1,1], c='steelblue')
-ax.plot(W[:,0], W[:,1], linewidth=0.01, c='steelblue')
+ax.plot(W[:,0], W[:,1], linewidth=0.005, c='steelblue')
 
-# plt.savefig('/home/john/Desktop/summerproject/img/10thousandyears.png', bbox_inches='tight')
+# plt.savefig('/home/john/Desktop/summerproject/img/3000years.png', bbox_inches='tight')
+# %%
+x = W[:,0:2]
+v = W[:,2:5]
+r = np.linalg.norm(x, axis=1)
+vk = np.linalg.norm(v, axis=1)
+
+ecc = np.linalg.norm([( (vk[i]**2-G*mstar/r[i])*x[i]-(np.dot(x[i],v[i])*v[i]) )/G/mstar for i in range(len(W))], axis=1)
+
+E = vk**2/2-G*mstar/r
+
+a = -G*mstar/2/E
+# %%
+fig, ax = plt.subplots(1, figsize=(7,5))
+
+ax.plot(np.arange(0,noutputs,1)*dt, ecc)
+ax.axhline(h, c='black', label='e = H/r')
+ax.set_xlabel('time (years)')
+ax.set_ylabel('eccentricity')
+ax.set_xlim(0, 3000)
+ax.set_ylim(0)
+ax.tick_params(which='both', direction="in", top=True, right=True)
+ax.grid()
+ax.legend()
+
+
+# plt.savefig('/home/john/Desktop/summerproject/img/eccentricitydecay.png', bbox_inches='tight')
