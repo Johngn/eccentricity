@@ -16,16 +16,16 @@ matplotlib.rc('font', **font)
 G = 6.674e-11                               # gravitational constanst
 au = 1.496e11                               # astronomical unit
 year = 365.25*24.*60.*60.                   # year
-mstar = 2.0e30                              # mass of star
-mplanet = 5.0e24                            # mass of orbiting planet
+mstar = 1.989e30                              # mass of star
+mplanet = 5.972e25                            # mass of orbiting planet
 r = 1*au   # radial position of planet
 
 h = 0.05                                    # scale height of disc
 e = np.arange(0, 0.5, 0.005)                # eccentricites
-# e = 0.5
+e = 0
 ehat = e/h                                  # eccentricity divided by scale height of disc
 i = np.arange(0, h*10, 0.0001)              # inclinations
-i = 0
+# i = 0
 ihat = i/h                                  # inclinations divided by scale height of disc
 
 omegak = np.sqrt(G*(mstar+mplanet)/r**3)                # Keplerian frequency
@@ -52,27 +52,29 @@ tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)                                 # eq
 # %%
 fig, ax = plt.subplots(2, figsize=(7,7))
 
-x = ehat
+x = ihat
 
-ax[0].plot(x, tau_e/year, label='IDA20')
-ax[0].plot(x, tau_e_CN/year, label='CN08')
+# ax[0].plot(x, tau_e/year, label='IDA20')
+# ax[0].plot(x, tau_e_CN/year, label='CN08')
+ax[0].plot(x, tau_e/year)
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
-ax[0].set_ylabel(r'$\tau_e$ (years)')
+ax[0].set_ylabel(r'$\tau_i$ (years)')
 # ax[0].set_ylabel(r'$\tau^{-1}_e/t_{wave}^{-1}$')
 ax[0].set_xlim(0.1, 10)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
-ax[0].legend()
+# ax[0].legend()
 
-ax[1].plot(x, tau_a/year, label='IDA20')
-ax[1].plot(x, tau_a_CN/year, label='CN08')
+# ax[1].plot(x, tau_a/year, label='IDA20')
+# ax[1].plot(x, tau_a_CN/year, label='CN08')
+ax[1].plot(x, tau_a/year)
 ax[1].set_xscale('log')
 ax[1].set_yscale('log')
-ax[1].set_xlabel('e/h')
+ax[1].set_xlabel('i/h')
 ax[1].set_ylabel(r'$\tau_a$ (years)')
 # ax[0].set_ylabel(r'$\tau^{-1}_a/t_{wave}^{-1}$')
 ax[1].set_xlim(0.1, 10)
 ax[1].tick_params(which='both', direction="in", top=True, right=True)
-ax[1].legend()
+# ax[1].legend()
 
-# fig.savefig('/home/john/Desktop/summerproject/img/eccentricity_timescales.png', bbox_inches='tight')
+fig.savefig('/home/john/Desktop/summerproject/img/inclination_timescales.png', bbox_inches='tight')

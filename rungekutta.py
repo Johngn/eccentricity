@@ -21,7 +21,7 @@ m = 1.989e30
 G = 4*np.pi**2
 mstar = 1
 mplanet = 3e-5
-dt = 0.001
+dt = 0.01
 a = 1
 sigma = 17000*a**(-3/2)*au**2/m
 lim = 1.5
@@ -29,62 +29,69 @@ lim = 1.5
 # G = 6.674e-11
 # mstar = 1.989e30
 # mplanet = 5.972e25
-# dt = year*0.001
-# a = au
+# dt = year*0.01
+# a = au*5
 # sigma = 17000*(a/au)**(-3/2)
 # lim = au*1.5
 
-noutputs = 3000000
+mu = G*mstar
+
+noutputs = 100000
 totaltime = noutputs*dt
 
 h = 0.05
 
-e = 0.3
+e = 0.25
 ehat = e/h
-r_p = a*(1-e)
-r_a = a*(1+e)
+r_p = a*(1-e) # periapsis
+r_a = a*(1+e) # apoapsis
 
-omegak = np.sqrt(G*(mstar)/a**3)
+Cm = 21.
+Ct = 4.25
 
-t_wave = mstar/mplanet*mstar/sigma/a**2*h**4/omegak
+vorb0 = np.sqrt(mu*(2/r_a-1/a)) # instantaneous orbital speed at apoapsis
 
-p, q = 1.0, 0.5
-Ct = 2.73+1.08*p+0.87*q
-Cm = 6*(2*p-q+2)
+W0 = np.array([0,r_a,0, -vorb0,0,0])
 
-tau_e = t_wave/0.780*(1+1/15*ehat**3)
-tau_a = t_wave/Ct/h**2*(1+Ct/Cm*ehat)
-tau_m = (0.5/tau_a-e**2/tau_e)**-1
-
-vorb = np.sqrt(G*mstar*(2/r_a-1/a))
-
-W0 = np.array([0,r_a,-vorb,0])
-# %%
 def acceleration(W0):
-    x = W0[0:2]
-    v = W0[2:5]
+    x = W0[0:3]
+    v = W0[3:6]
     r = np.linalg.norm(x)
     vk = np.linalg.norm(v)
     
-    dvdtG = -G*mstar*x/r**3
+    u_r = x/r               # unit vector in radial direction
+    u_a = v/vk              # unit vector in azimuthal direction    
+    vr = np.dot(v, u_r)     # radial velocity
+    vtheta = np.dot(v, u_a) # azimuthal velocity
     
-    uv_r = x/r # unit vector in radial direction
-    uv_a = np.array([-uv_r[1], uv_r[0]]) # unit vector in azimuthal direction
-    vr = np.dot(uv_r, v) # radial velocity
-    vtheta = np.dot(uv_a, v) # azimuthal velocity
+    dvdtG = -mu*x/r**3      # acceleration due to gravity
     
-    # dvdt1 = -2*(np.dot(v,x)*x)/r**2/tau_e # equation 15 in Creswell+Nelson 2008
-    # print('1: ', dvdt1)
-    dvdt1 = -vk/2/tau_a*uv_a-vr/tau_e*uv_r-(vtheta-vk)/tau_e*uv_a # equation 46 in Ida 2020
-    # print('3: ', dvdt2)
+    e = np.linalg.norm( (vk**2/mu - 1/r)*x - (np.dot(x,v)*v)/mu ) # eccentricity vector from wikipedia
+    E = vk**2/2-mu/r
+    a = -mu/2/E
     
-    # print(dvdt1)
+    omegak = np.sqrt(mu/r**3)
+
+    t_wave = mstar/mplanet*mstar/sigma/a**2*h**4/omegak    
     
-    return np.hstack((v, dvdtG+dvdt1))
+    # Ida prescription
+    tau_e = t_wave/0.780*(1+1/15*ehat**3)
+    tau_a = t_wave/Ct/h**2*(1+Ct/Cm*ehat)
+    tau_m = (0.5/tau_a-e**2/tau_e)**-1
+    
+    # CN prescription
+    # tau_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)
+    # tau_m = 1/((2.7+1.1*0.5)/(2)*h**2*(1-(ehat/2.02)**4)/(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/t_wave)
+    # tau_a = 1/(2/tau_m+2*e**2/tau_e)
+    
+    dvdt2 = -vk/2/tau_a*u_a-vr/tau_e*u_r-(vtheta-vk)/tau_e*u_a # equation 46 in Ida 2020
+    # dvdt2 = -v/tau_m-2*(np.dot(v,x)*x)/r**2/tau_e # equation 15 in Creswell+Nelson 2008
+    
+    return np.hstack((v, dvdtG+dvdt2))
 
 def rungekutta(W0):
     
-    W = np.zeros((noutputs,4))
+    W = np.zeros((noutputs,6))
     
     for i in range(noutputs):
         fa = acceleration(W0)
@@ -103,8 +110,57 @@ def rungekutta(W0):
 timer = timed()
 W = rungekutta(W0)
 print(timed()-timer)
+
+
+omegak = np.sqrt(mu/a**3)
+t_wave = mstar/mplanet*mstar/sigma/a**2*h**4/omegak
+
+x = W[:,0:3]
+v = W[:,3:6]
+r = np.linalg.norm(x, axis=1)
+vk = np.linalg.norm(v, axis=1)
+
+e_total = np.linalg.norm([ (vk[i]**2/mu - 1/r[i])*x[i] - (np.dot(x[i],v[i])*v[i])/mu for i in range(len(W))], axis=1)
+
+E_total = vk**2/2-mu/r
+
+a_total = -mu/2/E_total
+
+e_results = np.zeros(noutputs)
+a_results = np.zeros(noutputs)
+
+for i in range(noutputs):    
+    ehat = e/h
+    t_ecc = t_wave/0.78*(1+(1/15)*ehat**3)              # equation 34 from Ida 20
+    # t_ecc = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)   # equation 11 from Creswell+Nelson 08
+    t_m = 1/((2.7+1.1*0.5)/(2)*h**2*(1-(ehat/2.02)**4)/(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/t_wave)
+    t_a  = 1/(2/t_m+2*e**2/t_ecc)   
+    de = -e/t_ecc*dt
+    e = e+de
+    e_results[i] = e
+    da = -a/t_a*dt
+    a = a+da
+    a_results[i] = a
 # %%
-times = np.linspace(0,noutputs*dt,noutputs) # for displaying time elapsed in plot
+fig, ax = plt.subplots(1, figsize=(7,5))
+
+ax.plot(np.arange(0,noutputs,1)*dt, e_results, label='analytical')
+ax.plot(np.arange(0,noutputs,1)*dt, e_total, label='numerical')
+# ax.plot(np.arange(0,noutputs,1)*dt/year, e_results2)
+# ax.plot(np.arange(0,noutputs,1)*dt/year, e_results3)
+# ax.plot(np.arange(0,noutputs,1)*dt/year, e_results4)
+ax.axhline(h, c='black', label='e = H/r')
+ax.set_xlabel('time (years)')
+ax.set_ylabel('e')
+ax.set_xlim(0, noutputs*dt)
+# ax.set_ylim(4, 5)
+ax.tick_params(which='both', direction="in", top=True, right=True)
+ax.grid()
+ax.legend()
+
+# fig.savefig('/home/john/Desktop/summerproject/img/a_num+analyticCN.png', bbox_inches='tight')
+# %%
+times = np.linspace(0,totaltime,noutputs) # for displaying time elapsed in plot
 fig, ax = plt.subplots(1, figsize=(9, 9))
 
 ax.set_xlim(-lim, lim)
@@ -140,30 +196,4 @@ ax.scatter(0,0, c='black')
 ax.scatter(W[-1,0], W[-1,1], c='steelblue')
 ax.plot(W[:,0], W[:,1], linewidth=0.005, c='steelblue')
 
-# plt.savefig('/home/john/Desktop/summerproject/img/3000years.png', bbox_inches='tight')
-# %%
-x = W[:,0:2]
-v = W[:,2:5]
-r = np.linalg.norm(x, axis=1)
-vk = np.linalg.norm(v, axis=1)
-
-ecc = np.linalg.norm([( (vk[i]**2-G*mstar/r[i])*x[i]-(np.dot(x[i],v[i])*v[i]) )/G/mstar for i in range(len(W))], axis=1)
-
-E = vk**2/2-G*mstar/r
-
-a = -G*mstar/2/E
-# %%
-fig, ax = plt.subplots(1, figsize=(7,5))
-
-ax.plot(np.arange(0,noutputs,1)*dt, ecc)
-ax.axhline(h, c='black', label='e = H/r')
-ax.set_xlabel('time (years)')
-ax.set_ylabel('eccentricity')
-ax.set_xlim(0, 3000)
-ax.set_ylim(0)
-ax.tick_params(which='both', direction="in", top=True, right=True)
-ax.grid()
-ax.legend()
-
-
-# plt.savefig('/home/john/Desktop/summerproject/img/eccentricitydecay.png', bbox_inches='tight')
+# plt.savefig('/home/john/Desktop/summerproject/img/5000years.png', bbox_inches='tight')
