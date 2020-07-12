@@ -37,21 +37,17 @@ t_wave = mstar/mplanet*mstar/sigma/r**2*h**(4)/omegak   # equation 7 from Ida 20
 
 # equations for tau_e, tau_a, and tau_m by Cresswell & Nelson 2008 as taken from Ida 2020
 tau_e_CN = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)                                                    # equation 17 from Ida 2020
-tau_m_CN = 1/((2.7+1.1*0.5)/(2)*h**2*(1-(ehat/2.02)**4)/(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/t_wave)     # equation 18 from Ida 2020
-tau_a_CN = 1/(2/tau_m_CN+2*e**2/tau_e_CN)                                                               # equation 16 from Ida 2020    
+tau_m_CN = t_wave*2/(2.7+1.1*0.5)/h**2*(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/(1-(ehat/2.02)**4)           # equation 18 from Ida 2020
+tau_a_CN = (2/tau_m_CN+2*e**2/tau_e_CN)**(-1)                                                               # equation 16 from Ida 2020    
 
-# p = -dln(sigma)/dln(r), q = -dln(T)/dln(r)
-p, q = 1.0, 0.5
-# equations for Cm and Ct taken from table 1 in Ida 2020
-Ct = 2.73+1.08*p+0.87*q
-Cm = 6*(2*p-q+2)
+Cm = 21.
+Ct = 4.25
 
 # equations for tau_e, tau_a, tau_m and tau_i by Ida 2020
 tau_e = t_wave/0.780*(1+1/15*(ehat**2+ihat**2)**(3/2))          # equation D1 in Ida 2020
 tau_i = t_wave/0.544*(1+1/21.5*(ehat**2+ihat**2)**(3/2))          # equation D2 in Ida 2020
 tau_a = t_wave/Ct/h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))         # equation D4 in Ida 2020
-tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)                                 # equation D3 in Ida 2020
-
+tau_m = (0.5/tau_a-e**2/tau_e-i**2/tau_i)**(-1)                                 # equation D3 in Ida 2020
 # %%
 fig, ax = plt.subplots(2, figsize=(7,7))
 
