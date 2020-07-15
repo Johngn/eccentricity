@@ -27,7 +27,6 @@ mu = G*Msun
 OmegaK = np.sqrt(mu/rsun**3) # keplerian frequency at this distance
 
 h = 0.05
-
 e = 0.25
 ehat = e/h
 r_p = rsun*(1-e) # perihelion
