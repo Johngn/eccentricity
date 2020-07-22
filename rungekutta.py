@@ -35,13 +35,13 @@ lim = 1.5
 # lim = au*1.5
 
 mu = G*mstar
-noutputs = 1000
+noutputs = 20
 totaltime = noutputs*dt
 h = 0.05
 i = 0
 ihat = i/h
 
-e = 0.15
+e = 0.25
 ehat = e/h
 r_p = r*(1-e) # perihelion
 r_a = r*(1+e) # aphelion
@@ -52,7 +52,7 @@ Ct = 4.25
 vorb0 = np.sqrt(mu*(2/r_a-1/r)) # instantaneous orbital speed at aphelion
 
 W0 = np.array([0,r_a,0,-vorb0,0,0])
-# %%
+
 def acceleration(W0):
     R = W0[0:3]                             # position vector
     V = W0[3:6]                             # velocity vector
@@ -75,18 +75,19 @@ def acceleration(W0):
     t_wave = mstar/mplanet*mstar/sigma/r**2*h**4/omegak # new t_wave every timestep
     
     # Ida prescription
-    # tau_e = t_wave/0.780*(1+1/15*(ehat**2+ihat**2)**(3/2))
-    # tau_i = t_wave/0.544*(1+1/21.5*(ehat**2+ihat**2)**(3/2))
-    # tau_a = t_wave/Ct/h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))
-    # tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)
+    tau_e = t_wave/0.780*(1+1/15*(ehat**2+ihat**2)**(3/2))
+    tau_i = t_wave/0.544*(1+1/21.5*(ehat**2+ihat**2)**(3/2))
+    tau_a = t_wave/Ct/h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))
+    tau_m = 1/(0.5/tau_a-e**2/tau_e-i**2/tau_i)
     
     # CN prescription
-    tau_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)
-    tau_m = 1/((2.7+1.1*0.5)/2*h**2*(1-(ehat/2.02)**4)/(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/t_wave)
-    tau_a = 1/(2/tau_m+2*e**2/tau_e)
+    # tau_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)
+    # tau_m = 1/((2.7+1.1*0.5)/2*h**2*(1-(ehat/2.02)**4)/(1+(ehat/2.25)**0.5+(ehat/2.84)**6)/t_wave)
+    # tau_a = 1/(2/tau_m+2*e**2/tau_e)
     
-    # dvdt2 = -vk/2/tau_a*u_a-vr/tau_e*u_r-(va-vk)/tau_e*u_a # equation 46 in Ida 2020
-    dvdt2 = -V/tau_m-2*np.dot(V,R)*R/r**2/tau_e # equation 15 in Creswell+Nelson 2008
+    dvdt2 = -vk/2/tau_a*u_a-vr/tau_e*u_r-(va-vk)/tau_e*u_a # equation 46 in Ida 2020
+    print(dvdt2)
+    # dvdt2 = -V/tau_m-2*np.dot(V,R)*R/r**2/tau_e # equation 15 in Creswell+Nelson 2008
     
     return np.hstack((V, dvdtG+dvdt2))
 
@@ -137,8 +138,8 @@ a_results = np.zeros(noutputs)
 for j in range(noutputs):    
     ehat = e/h
     
-    # tau_e = t_wave/0.78*(1+(1/15)*ehat**3)              # equation 34 from Ida 20
-    tau_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)   # equation 11 from Creswell+Nelson 08
+    tau_e = t_wave/0.78*(1+(1/15)*ehat**3)              # equation 34 from Ida 20
+    # tau_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3)   # equation 11 from Creswell+Nelson 08
     
     de = -e/tau_e*dt
     e = e+de
@@ -170,7 +171,7 @@ ax.tick_params(which='both', direction="in", top=True, right=True)
 ax.grid()
 ax.legend()
 
-fig.savefig('/home/john/Desktop/summerproject/img/num+analyticIDA.pdf', bbox_inches='tight')
+# fig.savefig('/home/john/Desktop/summerproject/img/num+analyticIDA.pdf', bbox_inches='tight')
 # %%
 times = np.linspace(0,totaltime,noutputs) # for displaying time elapsed in plot
 fig, ax = plt.subplots(1, figsize=(9, 9))
