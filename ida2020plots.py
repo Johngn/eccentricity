@@ -53,8 +53,8 @@ fig, ax = plt.subplots(2, figsize=(7,7))
 
 x = ehat
 
-ax[0].plot(x, tau_e/year, label='IDA20')
-ax[0].plot(x, tau_e_CN/year, label='CN08')
+ax[0].plot(x, tau_i/year, label='IDA20')
+# ax[0].plot(x, tau_e_CN/year, label='CN08')
 # ax[0].plot(x, tau_e/year)
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
