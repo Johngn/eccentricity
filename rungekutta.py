@@ -13,23 +13,24 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from mpl_toolkits.mplot3d import axes3d
 from timeit import default_timer as timed
+from glob import glob
 
 year = 365.25*24.*60.*60.
 au = 1.496e11
 mstarkg = 1.989e30
 G = 4*np.pi**2
 mstar = 1
-mplanet = 3e-5
+mplanet = 1e28/1.989e33
 dt = 0.02
 r = 1
 sigma = 17000*r**(-1/2)*au**2/mstarkg
 lim = 1.2
 mu = G*mstar
-noutputs = 10000
+noutputs = 1000000
 totaltime = noutputs*dt
 h = 0.05
-e = 0.0
-i = 0.14
+e = 0.25
+i = 0.0
 ehat = e/h
 ihat = i/h
 r_p = r*(1-e) # perihelion
@@ -103,7 +104,7 @@ def rungekutta(W0):
 timer = timed()
 W = rungekutta(W0)
 print(timed()-timer)
-
+# %%
 R = W[:,0:3]
 V = W[:,3:6]
 r = np.linalg.norm(R, axis=1)
@@ -111,12 +112,41 @@ v = np.linalg.norm(V, axis=1)
 e_rk = np.linalg.norm([(v[i]**2/mu-1/r[i])*R[i]-(np.dot(R[i],V[i])*V[i])/mu for i in range(len(W))], axis=1)
 L = np.cross(R,V)  # angular momentum
 i_rk = np.arccos(L[:,2]/np.linalg.norm(L, axis=1))
+E = v**2/2 - mu/r
+a = -mu/2/E
 # %%
-genga_data = np.array(pd.read_csv('./data_high_i_ida.csv'))
-genga_t = genga_data[:,0]
-genga_e = genga_data[:,1]
-genga_i = genga_data[:,2]
+genga_ida = np.array(pd.read_csv('./data/datatest.csv'))
+genga_cn = np.array(pd.read_csv('./data/datatestcn.csv'))
+# genga_p = genga_data[:,0]
+# genga_t = genga_data[:,1]
+# genga_a = genga_data[:,2]
+# genga_e = genga_data[:,3]
+# genga_i = genga_data[:,4]
+total_time = int(genga_ida[0,1])
 
+fig, ax = plt.subplots(1, figsize=(9,7))
+ax.scatter(genga_ida[:,2], genga_ida[:,3], s=20, alpha=0.7, label='IDA')
+ax.scatter(genga_cn[:,2], genga_cn[:,3], s=20, alpha=0.7, label='CN')
+ax.set_xlabel('a')
+ax.set_ylabel('')
+ax.set_ylim(0)
+ax.set_title(f'Eccentricity and semi-major axis after {total_time} years')
+ax.legend()
+
+fig, ax = plt.subplots(1, figsize=(9,7))
+ax.scatter(genga_ida[:,2], genga_ida[:,4], s=20, alpha=0.7, label='IDA')
+ax.scatter(genga_cn[:,2], genga_cn[:,4], s=20, alpha=0.7, label='CN')
+ax.set_xlabel('a')
+ax.set_ylabel('')
+ax.set_ylim(0)
+ax.set_title(f'Inclination and semi-major axis after {total_time} years')
+ax.legend()
+
+# %%
+
+fig, ax = plt.subplots(1, figsize=(9,6))
+ax.hist(genga_ida[:,2], 20)
+# %%
 e_euler = np.zeros(noutputs)
 i_euler = np.zeros(noutputs)
 
@@ -137,22 +167,22 @@ for j in range(noutputs):
     i_euler[j] = i    
 # %%
 fig, ax = plt.subplots(1, figsize=(9,7))
-# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_euler, label="euler")
+# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_euler, label=r"$t_{ecc}$")
 # ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_rk, linestyle='--', label="RK")
-ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_euler, c='tab:blue', label=r"$t_{inc}$")
+# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_euler, c='tab:blue', label=r"$t_{inc}$")
 # ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_rk, linestyle='-', c='tab:orange', label="RK")
-ax.plot(genga_t, genga_i, linestyle='--', c='tab:red', label='genga')
-ax.axhline(h, c='black', label='e = H/r')
+ax.plot(genga_t, genga_e, linestyle='--', c='tab:red', label='genga')
+ax.axhline(h, c='black', label='H/r')
 ax.set_xlabel('time (years)')
-ax.set_ylabel('i')
-ax.set_xlim(0, noutputs*dt/2/np.pi*omegak)
+ax.set_ylabel('e')
+ax.set_xlim(0)
 ax.set_ylim(0)
-ax.set_title("Ida")
+ax.set_title("Ida" if ida else "CN")
 ax.tick_params(which='both', direction="in", top=True, right=True)
 ax.grid()
 ax.legend()
 
-# fig.savefig('/home/john/summerproject/img/genga_high_i_ida.png', bbox_inches='tight')
+# fig.savefig('/home/john/summerproject/img/test1.png', bbox_inches='tight')
 # %%
 times = np.linspace(0,totaltime,noutputs) # for displaying time elapsed in plot
 fig, ax = plt.subplots(1, figsize=(9, 9))
@@ -171,8 +201,8 @@ text = ax.text(-lim+lim/4, +lim-lim/4, s='', fontsize=15)
 
 def animate(i):
     star.set_data(0,0)
-    planet.set_data(W[i,1],W[i,2])
-    planetline.set_data(W[0:i,1],W[0:i,2])
+    planet.set_data(W[i,0],W[i,1])
+    planetline.set_data(W[0:i,0],W[0:i,1])
     text.set_text('{:.1f} years'.format(times[i]))
     return star, planet, planetline, text
 
@@ -208,4 +238,12 @@ ax.set_ylim([-lim,lim])
 ax.set_zlim([-lim,lim])
 
 # plt.savefig(f'close-{particles}-{runtime}-{ts}.png', bbox_inches='tight')
+# %%
+files = glob(f'./Out*.dat')
+files.sort()
+data = np.concatenate([np.loadtxt(i) for i in files])
+
+planet_i = 1
+
+planet1 = data[data[:,1] == planet_i]
 
