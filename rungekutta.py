@@ -26,7 +26,7 @@ r = 1
 sigma = 17000*r**(-1/2)*au**2/mstarkg
 lim = 1.2
 mu = G*mstar
-noutputs = 1000000
+noutputs = 10000
 totaltime = noutputs*dt
 h = 0.05
 e = 0.25
@@ -114,87 +114,12 @@ L = np.cross(R,V)  # angular momentum
 i_rk = np.arccos(L[:,2]/np.linalg.norm(L, axis=1))
 E = v**2/2 - mu/r
 a = -mu/2/E
+
 # %%
-ida1 = np.array(pd.read_csv('./data/datatestida.csv'))
-cn1 = np.array(pd.read_csv('./data/datatestcn.csv'))
-ida2 = np.array(pd.read_csv('./data/datatestida2.csv'))
-cn2 = np.array(pd.read_csv('./data/datatestcn2.csv'))
-idal = np.array(pd.read_csv('./data/datatestidalarge.csv'))
-cnl = np.array(pd.read_csv('./data/datatestcnlarge.csv'))
-# genga_p = genga_data[:,0]
-# genga_t = genga_data[:,1]
-# genga_a = genga_data[:,2]
-# genga_e = genga_data[:,3]
-# genga_i = genga_data[:,4]
-total_time = int(ida1[0,1])
+from euler_integration import euler
 
-fig, ax = plt.subplots(1, figsize=(9,7))
-ax.scatter(ida1[:,2], ida1[:,3], s=20, alpha=0.7, label='IDA')
-ax.scatter(cn1[:,2], cn1[:,3], s=20, alpha=0.7, label='CN')
-# ax.scatter(ida2[:,2], ida2[:,3], s=20, alpha=0.7, label='IDA')
-# ax.scatter(cn2[:,2], cn2[:,3], s=20, alpha=0.7, label='CN')
-ax.scatter(idal[:,2], idal[:,3], s=20, alpha=0.7, label='IDA')
-ax.scatter(cnl[:,2], cnl[:,3], s=20, alpha=0.7, label='CN')
-ax.set_xlabel('semi-major axis (AU)')
-ax.set_ylabel('eccentricity')
-ax.set_ylim(0)
-ax.set_title(f'Eccentricity and semi-major axis after {total_time} years')
-ax.legend()
-
-fig, ax = plt.subplots(1, figsize=(9,7))
-ax.scatter(ida1[:,2], ida1[:,4], s=20, alpha=0.7, label='IDA')
-ax.scatter(cn1[:,2], cn1[:,4], s=20, alpha=0.7, label='CN')
-# ax.scatter(ida2[:,2], ida2[:,4], s=20, alpha=0.7, label='IDA')
-# ax.scatter(cn2[:,2], cn2[:,4], s=20, alpha=0.7, label='CN')
-ax.scatter(idal[:,2], idal[:,4], s=20, alpha=0.7, label='IDA')
-ax.scatter(cnl[:,2], cnl[:,4], s=20, alpha=0.7, label='CN')
-ax.set_xlabel('semi-major axis (AU)')
-ax.set_ylabel('inclination')
-ax.set_ylim(0)
-ax.set_title(f'Inclination and semi-major axis after {total_time} years')
-ax.legend()
-# %%
-idaR = np.loadtxt('./data/Outtestidasmalli_000000000000.dat')
-x = idaR[:,4]
-y = idaR[:,5]
-z = idaR[:,6]
-
-fig = plt.figure(figsize=(11,11))
-ax = fig.add_subplot(111, projection='3d')
-
-ax.scatter(x, y, z, s=1, alpha=0.5)
-# ax.plot(W[0::1,0], W[0::1,1], W[0::1,2], linewidth=0.005, c='steelblue')
-# ax.view_init(elev=2, azim=340)
-ax.set_xlabel('X (AU)')
-ax.set_ylabel('Y (AU)')
-ax.set_zlabel('Z (AU)')
-lim = 0.8
-ax.set_xlim([-lim,lim])
-ax.set_ylim([-lim,lim])
-ax.set_zlim([-lim,lim])
-# %%
-
-fig, ax = plt.subplots(1, figsize=(9,6))
-ax.hist(genga_ida[:,2], 20)
-# %%
-e_euler = np.zeros(noutputs)
-i_euler = np.zeros(noutputs)
-
-for j in range(noutputs):    
-    ehat = e/h    
-    ihat = i/h
-    if ida:
-        t_e = t_wave/0.78*(1+1/15*(ehat**2+ihat**2)**(3/2))                     # equation 34 from Ida 20
-        t_i = t_wave/0.544*(1+1/21.5*(ehat**2+ihat**2)**(3/2))                  # Ida
-    else:
-        t_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3+0.18*ehat*ihat**2)     # equation 11 from Creswell+Nelson 08
-        t_i = t_wave/0.544*(1-0.30*ihat**2+0.24*ihat**3+0.14*ihat*ehat**2)    # CN    
-    de = -e/t_e*dt
-    e = e+de
-    e_euler[j] = e    
-    di = -i/t_i*dt
-    i = i+di
-    i_euler[j] = i    
+e_euler = euler(noutputs, e, i, h, dt, t_wave, ida)
+ 
 # %%
 fig, ax = plt.subplots(1, figsize=(9,7))
 # ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_euler, label=r"$t_{ecc}$")
@@ -268,12 +193,3 @@ ax.set_ylim([-lim,lim])
 ax.set_zlim([-lim,lim])
 
 # plt.savefig(f'close-{particles}-{runtime}-{ts}.png', bbox_inches='tight')
-# %%
-files = glob(f'./Out*.dat')
-files.sort()
-data = np.concatenate([np.loadtxt(i) for i in files])
-
-planet_i = 1
-
-planet1 = data[data[:,1] == planet_i]
-
