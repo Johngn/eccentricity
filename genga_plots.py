@@ -16,11 +16,11 @@ from timeit import default_timer as timed
 from glob import glob
 # %%
 ida1 = np.array(pd.read_csv('./data/datatestida.csv'))
-cn1 = np.array(pd.read_csv('./data/datatestcn.csv'))
-ida2 = np.array(pd.read_csv('./data/datatestida2.csv'))
-cn2 = np.array(pd.read_csv('./data/datatestcn2.csv'))
-idal = np.array(pd.read_csv('./data/datatestidalarge.csv'))
-cnl = np.array(pd.read_csv('./data/datatestcnlarge.csv'))
+# cn1 = np.array(pd.read_csv('./data/datatestcn.csv'))
+# ida2 = np.array(pd.read_csv('./data/datatestida2.csv'))
+# cn2 = np.array(pd.read_csv('./data/datatestcn2.csv'))
+# idal = np.array(pd.read_csv('./data/datatestidalarge.csv'))
+# cnl = np.array(pd.read_csv('./data/datatestcnlarge.csv'))
 # genga_p = genga_data[:,0]
 # genga_t = genga_data[:,1]
 # genga_a = genga_data[:,2]
@@ -54,7 +54,7 @@ ax.set_ylim(0)
 ax.set_title(f'Inclination and semi-major axis after {total_time} years')
 ax.legend()
 # %%
-idaR = np.loadtxt('./data/Outtestidasmalli_000000000000.dat')
+idaR = np.loadtxt('./data/Outida2_000000000000.dat')
 x = idaR[:,4]
 y = idaR[:,5]
 z = idaR[:,6]
