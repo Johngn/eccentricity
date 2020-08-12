@@ -17,7 +17,7 @@ G = 6.674e-11                               # gravitational constanst
 au = 1.496e11                               # astronomical unit
 year = 365.25*24.*60.*60.                   # year
 mstar = 1.989e30                              # mass of star
-mplanet = 2e23                            # mass of orbiting planet
+mplanet = 6e23                            # mass of orbiting planet
 r = 1*au   # radial position of planet
 
 h = 0.05                                    # scale height of disc
@@ -39,7 +39,8 @@ t_wave = mstar/mplanet*mstar/sigma/r**2*h**(4)/omegak   # equation 7 from Ida 20
 t_e_CN = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3+0.18*ehat*ihat**2)
 t_i_CN = t_wave/0.544*(1-0.30*ihat**2+0.24*ihat**3+0.14*ihat*ehat**2)
 Pe = (1+(ehat/2.25)**1.2+(ehat/2.84)**6)/(1-(ehat/2.02)**4)
-t_a_CN = t_wave*2/h**2/(2.7+1.1*0.5)*(Pe+Pe/np.abs(Pe)*(0.07*ihat+0.085*ihat**4-0.08*ehat*ihat**2))                                                           # equation 16 from Ida 2020    
+t_m_CN = t_wave*2/h**2/(2.7+1.1*0.5)*(Pe+Pe/np.abs(Pe)*(0.07*ihat+0.085*ihat**4-0.08*ehat*ihat**2))
+t_a_CN = (2/t_m_CN+2*e**2/t_e_CN)**(-1)                                                          # equation 16 from Ida 2020    
 
 Cm = 21.
 Ct = 4.25
@@ -60,7 +61,7 @@ ax[0].plot(x, t_e_CN/year, label='CN08')
 # ax[0].plot(x, tau_e/year)
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
-ax[0].set_ylabel(r'$t_i$ (years)')
+ax[0].set_ylabel(r'$t_e$ (years)')
 # ax[0].set_ylabel(r'$\tau^{-1}_e/t_{wave}^{-1}$')
 ax[0].set_xlim(0.1, 10)
 # ax[0].set_ylim(0.001, 10)
@@ -76,7 +77,7 @@ ax[1].set_xlabel('e/h')
 ax[1].set_ylabel(r'$\tau_a$ (years)')
 # ax[0].set_ylabel(r'$\tau^{-1}_a/t_{wave}^{-1}$')
 ax[1].set_xlim(0.1, 10)
-# ax[1].set_ylim(0.0001, 0.1)
+# ax[1].set_ylim(10e5)
 ax[1].tick_params(which='both', direction="in", top=True, right=True)
 ax[1].legend()
 
