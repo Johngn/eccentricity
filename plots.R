@@ -1,24 +1,16 @@
 library(tidyverse)
 
-ida <- read_csv("summerproject/data/datatest.csv")
-cn <- read_csv("summerproject/data/datatestcn.csv")
+ida <- read_csv("./data/dataida_mars_4.csv")
+ida_small = data[1:400,]
+cn <- read_csv("data/datatestcn.csv")
 
-names(ida) <- c("planet","time","a","eccentricity","inclination")
+names(ida) <- c('planet_id','time','m','a','e','i')
 names(cn) <- c("planet","time","a","eccentricity","inclination")
 
 ggplot() +
-  geom_point(data = ida, 
-             aes(x = a, y = eccentricity),
-             color = 'orange') +
-  geom_point(data = cn,
-             aes(x = a, y = eccentricity),
-             color = 'dodgerblue1') +
-  geom_smooth(data = ida, 
-              aes(x = a, y = eccentricity),
-              color = 'orange') +
-  geom_smooth(data = cn,
-              aes(x = a, y = eccentricity),
-              color = 'dodgerblue1')
+  geom_point(data = ida_small, 
+             aes(x = planet_id, y = e),
+             color = 'orange')
 
 ida %>%
   ggplot(aes(n, a)) +

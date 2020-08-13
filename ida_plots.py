@@ -23,10 +23,10 @@ r = 1*au   # radial position of planet
 h = 0.05                                    # scale height of disc
 
 # switch these:
-i = 0
-e = np.arange(0, 0.5, 0.005)                # eccentricites
-# e = 0
-# i = np.arange(0, h*10, 0.0001)              # inclinations
+# i = 0
+# e = np.arange(0, 0.5, 0.005)                # eccentricites
+e = 0
+i = np.arange(0, h*10, 0.0001)              # inclinations
 
 ehat = e/h                                  # eccentricity divided by scale height of disc
 ihat = i/h                                  # inclinations divided by scale height of disc
@@ -53,31 +53,28 @@ t_a = t_wave/Ct/h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))
 fig, ax = plt.subplots(2, figsize=(7,7))
 
 # switch these:
-x = ehat
-# x = ihat
+x = ihat
+ax[0].plot(x, t_i/year, label='IDA20')
+ax[0].plot(x, t_i_CN/year, label='CN08')
+ax[0].set_ylabel(r'$t_i$ (years)')
+# x = ehat
+# ax[0].plot(x, t_e/year, label='IDA20')
+# ax[0].plot(x, t_e_CN/year, label='CN08')
+# ax[0].set_ylabel(r'$t_e$ (years)')
 
-ax[0].plot(x, t_e/year, label='IDA20')
-ax[0].plot(x, t_e_CN/year, label='CN08')
-# ax[0].plot(x, tau_e/year)
 ax[0].set_xscale('log')
 ax[0].set_yscale('log')
-ax[0].set_ylabel(r'$t_e$ (years)')
-# ax[0].set_ylabel(r'$\tau^{-1}_e/t_{wave}^{-1}$')
 ax[0].set_xlim(0.1, 10)
-# ax[0].set_ylim(0.001, 10)
 ax[0].tick_params(which='both', direction="in", top=True, right=True)
 ax[0].legend()
 
 ax[1].plot(x, t_a/year, label='IDA20')
 ax[1].plot(x, t_a_CN/year, label='CN08')
-# ax[1].plot(x, t_a/year)
 ax[1].set_xscale('log')
 ax[1].set_yscale('log')
 ax[1].set_xlabel('e/h')
 ax[1].set_ylabel(r'$\tau_a$ (years)')
-# ax[0].set_ylabel(r'$\tau^{-1}_a/t_{wave}^{-1}$')
 ax[1].set_xlim(0.1, 10)
-# ax[1].set_ylim(10e5)
 ax[1].tick_params(which='both', direction="in", top=True, right=True)
 ax[1].legend()
 

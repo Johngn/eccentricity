@@ -54,11 +54,14 @@ cn_mars_2 = orbitalelements(np.loadtxt('./data/Outcn_mars_2_000100000000.dat'))
 
 ida_mars_3 = orbitalelements(np.loadtxt('./data/Outida_mars_3_000100000000.dat'))
 cn_mars_3 = orbitalelements(np.loadtxt('./data/Outcn_mars_3_000100000000.dat'))
-# %%
-ida_data = ida_mars_2
-cn_data = cn_mars_2
 
-fig, ax = plt.subplots(2, figsize=(8,8))
+ida_mars_4 = orbitalelements(np.loadtxt('./data/Outida_mars_4_000100000000.dat'))
+cn_mars_4 = orbitalelements(np.loadtxt('./data/Outcn_mars_4_000100000000.dat'))
+# %%
+ida_data = ida_mars_4
+cn_data = cn_mars_4
+
+fig, ax = plt.subplots(2, figsize=(9,9))
 
 ax[0].scatter(ida_data[:,0], ida_data[:,1], s=ida_data[:,3]*200, alpha=0.7, label='IDA')
 ax[0].scatter(cn_data[:,0], cn_data[:,1], s=cn_data[:,3]*200, alpha=0.7, label='CN')
@@ -80,7 +83,24 @@ ax[1].legend()
 # ax[2].set_ylim(0)
 # ax[2].legend()
 
-# fig.savefig('/home/john/summerproject/img/genga_mars_2.png', bbox_inches='tight')
+# fig.savefig('/home/john/summerproject/img/genga_mars_3.png', bbox_inches='tight')
+# %%
+fig, ax = plt.subplots(3, figsize=(8,12))
+fig.subplots_adjust(hspace=0.4)
+
+ax[0].hist([ida_data[:,0], cn_data[:,0]], 20, label=['IDA', 'CN'])
+ax[0].set_xlabel('semi-major axis')
+ax[0].legend(loc='upper right')
+
+ax[1].hist([ida_data[:,1], cn_data[:,1]], 20, label=['IDA', 'CN'])
+ax[1].set_xlabel('eccentricity')
+ax[1].legend(loc='upper right')
+
+ax[2].hist([ida_data[:,2], cn_data[:,2]], 20, label=['IDA', 'CN'])
+ax[2].set_xlabel('inclination')
+ax[2].legend(loc='upper right')
+
+# fig.savefig('/home/john/summerproject/img/hist_mars.png', bbox_inches='tight')
 # %%
 data = np.loadtxt('./data/Outida_300_000010000000.dat')
 
@@ -97,27 +117,3 @@ lim = 1.5
 ax.set_xlim([-lim,lim])
 ax.set_ylim([-lim,lim])
 ax.set_zlim([-lim,lim])
-# %%
-fig, ax = plt.subplots(1, figsize=(9,6))
-ax.hist([ida_300[:,1], cn_300[:,1]], 20, label=['IDA', 'CN'])
-ax.set_xlabel('eccentricity')
-plt.legend(loc='upper right')
-# fig.savefig('/home/john/summerproject/img/e_hist_300.png', bbox_inches='tight')
-# %%
-fig, ax = plt.subplots(1, figsize=(9,6))
-ax.hist([ida_300[:,2], cn_300[:,2]], 20, label=['IDA', 'CN'])
-ax.set_xlabel('inclination')
-plt.legend(loc='upper right')
-# fig.savefig('/home/john/summerproject/img/i_hist_300.png', bbox_inches='tight')
-# %%
-fig, ax = plt.subplots(1, figsize=(9,6))
-ax.hist([ida_300_longer[:,0], cn_300_longer[:,0]], 20, label=['IDA', 'CN'])
-ax.set_xlabel('semi-major axis')
-plt.legend(loc='upper right')
-fig.savefig('/home/john/summerproject/img/a_hist_300_long.png', bbox_inches='tight')
-# %%
-fig, ax = plt.subplots(1, figsize=(9,6))
-ax.hist([ida_300_longer[:,3], cn_300_longer[:,3]], 20, label=['IDA', 'CN'])
-ax.set_xlabel(r'mass (${M_e}$)')
-plt.legend(loc='upper right')
-fig.savefig('/home/john/summerproject/img/m_hist_300_long.png', bbox_inches='tight')
