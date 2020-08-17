@@ -27,4 +27,4 @@ def euler(noutputs, e, i, h, dt, t_wave, ida):
         i = i+di
         i_euler[j] = i
         
-    return e_euler
+    return [e_euler, i_euler]

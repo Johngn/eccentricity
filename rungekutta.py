@@ -20,17 +20,17 @@ au = 1.496e11
 mstarkg = 1.989e30
 G = 4*np.pi**2
 mstar = 1
-mplanet = 1e28/1.989e33
+mplanet = 1e29/1.989e33
 dt = 0.02
 r = 1
 sigma = 17000*r**(-1/2)*au**2/mstarkg
 lim = 1.2
 mu = G*mstar
-noutputs = 10000
+noutputs = 50000
 totaltime = noutputs*dt
 h = 0.05
-e = 0.25
-i = 0.0
+e = 0.0
+i = 0.14
 ehat = e/h
 ihat = i/h
 r_p = r*(1-e) # perihelion
@@ -80,10 +80,10 @@ def acceleration(W0):
     else:
         # CN prescription
         Pe = (1+(ehat/2.25)**1.2+(ehat/2.84)**6)/(1-(ehat/2.02)**4)
-        t_a = t_wave*2/h**2/(2.7+1.1*0.5)*(Pe+Pe/np.abs(Pe)*(0.07*ihat+0.085*ihat**4-0.08*ehat*ihat**2))
+        t_m = t_wave*2/h**2/(2.7+1.1*0.5)*(Pe+Pe/np.abs(Pe)*(0.07*ihat+0.085*ihat**4-0.08*ehat*ihat**2))
         t_e = t_wave/0.78*(1-0.14*ehat**2+0.06*ehat**3+0.18*ehat*ihat**2)
         t_i = t_wave/0.544*(1-0.30*ihat**2+0.24*ihat**3+0.14*ihat*ehat**2)    
-        dvdt2 = - V/t_a - 2*np.dot(V,R)*R/r**2/t_e - vz/t_i*u_z
+        dvdt2 = - V/t_m - 2*np.dot(V,R)*R/r**2/t_e - vz/t_i*u_z
         
     return np.hstack((V, dvdtG+dvdt2))
 
@@ -118,15 +118,15 @@ a = -mu/2/E
 # %%
 from euler_integration import euler
 
-e_euler = euler(noutputs, e, i, h, dt, t_wave, ida)
+euler_results = euler(noutputs, e, i, h, dt, t_wave, ida)
  
 # %%
 fig, ax = plt.subplots(1, figsize=(9,7))
-# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_euler, label=r"$t_{ecc}$")
-# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_rk, linestyle='--', label="RK")
-# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_euler, c='tab:blue', label=r"$t_{inc}$")
-# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_rk, linestyle='-', c='tab:orange', label="RK")
-ax.plot(genga_t, genga_e, linestyle='--', c='tab:red', label='genga')
+# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, euler_results[0], label=r"$t_{ecc}$")
+# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_rk, linestyle='-', label="RK")
+ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, euler_results[1], c='tab:blue', label=r"$t_{inc}$")
+ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_rk, linestyle='-', c='tab:orange', label="RK")
+# ax.plot(genga_t, genga_e, linestyle='--', c='tab:red', label='genga')
 ax.axhline(h, c='black', label='H/r')
 ax.set_xlabel('time (years)')
 ax.set_ylabel('e')
