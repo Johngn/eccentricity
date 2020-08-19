@@ -57,12 +57,21 @@ cn_mars_3 = orbitalelements(np.loadtxt('./data/Outcn_mars_3_000100000000.dat'))
 
 ida_mars_4 = orbitalelements(np.loadtxt('./data/Outida_mars_4_000100000000.dat'))
 cn_mars_4 = orbitalelements(np.loadtxt('./data/Outcn_mars_4_000100000000.dat'))
+
+ida_mars_5 = orbitalelements(np.loadtxt('./data/Outida_mars_5_000100000000.dat'))
+cn_mars_5 = orbitalelements(np.loadtxt('./data/Outcn_mars_5_000100000000.dat'))
+
+ida_mars_6 = orbitalelements(np.loadtxt('./data/Outida_mars_6_000100000000.dat'))
+cn_mars_6 = orbitalelements(np.loadtxt('./data/Outcn_mars_6_000100000000.dat'))
+
+no_damping_1 = orbitalelements(np.loadtxt('./data/Outno_damping_1_000100000000.dat'))
 # %%
-ida_data = ida_mars_4
-cn_data = cn_mars_4
+ida_data = ida_mars_3
+cn_data = cn_mars_3
 
 fig, ax = plt.subplots(2, figsize=(9,9))
 
+ax[0].scatter(no_damping_1[:,0], no_damping_1[:,1], s=no_damping_1[:,3]*200, alpha=0.7, label='no damping')
 ax[0].scatter(ida_data[:,0], ida_data[:,1], s=ida_data[:,3]*200, alpha=0.7, label='IDA')
 ax[0].scatter(cn_data[:,0], cn_data[:,1], s=cn_data[:,3]*200, alpha=0.7, label='CN')
 ax[0].set_ylabel('eccentricity')
@@ -70,6 +79,7 @@ ax[0].set_ylim(0)
 ax[0].set_title(r'${10^6}$ years')
 ax[0].legend()
 
+ax[1].scatter(no_damping_1[:,0], no_damping_1[:,2], s=no_damping_1[:,3]*200, alpha=0.7, label='no damping')
 ax[1].scatter(ida_data[:,0], ida_data[:,2], s=ida_data[:,3]*200, alpha=0.7, label='IDA')
 ax[1].scatter(cn_data[:,0], cn_data[:,2], s=cn_data[:,3]*200, alpha=0.7, label='CN')
 ax[1].set_ylabel('inclination')
