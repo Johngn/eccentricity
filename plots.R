@@ -1,16 +1,16 @@
 library(tidyverse)
 
-ida <- read_csv("./data/dataida_mars_4.csv")
-ida_small = data[1:400,]
-cn <- read_csv("data/datatestcn.csv")
+ida <- read_csv("./data/ida_collision.csv")
+cn <- read_csv("./data/cn_collision.csv")
 
-names(ida) <- c('planet_id','time','m','a','e','i')
-names(cn) <- c("planet","time","a","eccentricity","inclination")
+data <- read.delim('./data/Outida_7_000100000000.dat') 
 
-ggplot() +
-  geom_point(data = ida_small, 
-             aes(x = planet_id, y = e),
-             color = 'orange')
+names(ida) <- c('a','e','i','m')
+names(cn) <- c('a','e','i','m')
+
+ggplot(ida) +
+  geom_histogram(aes(i)) +
+  geom_density(aes(x = i))
 
 ida %>%
   ggplot(aes(n, a)) +
