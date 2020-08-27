@@ -15,7 +15,7 @@ G = 6.674e-11                               # gravitational constanst
 au = 1.496e11                               # astronomical unit
 year = 365.25*24.*60.*60.                   # year
 mstar = 1.989e30                              # mass of star
-mplanet = 6e24                            # mass of orbiting planet
+mplanet = 6e23                            # mass of orbiting planet
 r = 1*au   # radial position of planet
 
 h = 0.05                                    # scale height of disc
@@ -48,7 +48,7 @@ t_i = t_wave/0.544*(1+1/21.5*(ehat**2+ihat**2)**(3/2))
 t_a = t_wave/Ct/h**2*(1+Ct/Cm*(ehat**2+ihat**2)**(1/2))
 t_m = (1/2/t_a-e**2/t_e-i**2/t_i)**(-1)
 
-fig, ax = plt.subplots(2, figsize=(7,7))
+fig, ax = plt.subplots(1, figsize=(7,4))
 
 # switch these:
 # x = ihat
@@ -56,26 +56,27 @@ fig, ax = plt.subplots(2, figsize=(7,7))
 # ax[0].plot(x, t_i_CN/year, label='CN08')
 # ax[0].set_ylabel(r'$t_i$ (years)')
 x = ehat
-ax[0].plot(x, t_e/year, label='IDA20')
-ax[0].plot(x, t_e_CN/year, label='CN08')
-ax[0].set_ylabel(r'$t_e$ (years)')
+# ax.plot(x, t_e/year, label='IDA20')
+# ax.plot(x, t_e_CN/year, label='CN08')
+# ax.set_ylabel(r'$t_e$ (years)')
 
-ax[0].set_xscale('log')
-ax[0].set_yscale('log')
-ax[0].set_xlim(0.1, 10)
+# ax[0].set_xscale('log')
+# ax.set_yscale('log')
+# ax.set_xlim(0, 5)
 # ax[0].set_ylim(1e3, 10e6)
-ax[0].tick_params(which='both', direction="in", top=True, right=True)
-ax[0].legend()
+# ax.tick_params(which='both', direction="in", top=True, right=True)
+# ax.legend()
+# ax.set_xlabel('e/h')
 
-ax[1].plot(x, t_a/year, label='IDA20')
-ax[1].plot(x, t_a_CN/year, label='CN08')
-ax[1].set_xscale('log')
-ax[1].set_yscale('log')
-ax[1].set_xlabel('e/h')
-ax[1].set_ylabel(r'$\tau_a$ (years)')
-ax[1].set_xlim(0.1, 10)
-# ax[1].set_ylim(1e5, 1e7)
-ax[1].tick_params(which='both', direction="in", top=True, right=True)
-ax[1].legend()
+ax.plot(x, t_a/year, label='IDA20')
+ax.plot(x, t_a_CN/year, label='CN08')
+ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.set_xlabel('e/h')
+ax.set_ylabel(r'$\tau_a$ (years)')
+ax.set_xlim(0.1, 10)
+ax.set_ylim(1e6, 3e6)
+ax.tick_params(which='both', direction="in", top=True, right=True)
+ax.legend()
 
-# fig.savefig('/home/john/Desktop/summerproject/img/i_timescales10.png', bbox_inches='tight')
+# fig.savefig('./img/ta_mars.png', bbox_inches='tight')

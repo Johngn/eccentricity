@@ -78,7 +78,7 @@ cn_9 = orbitalelements(np.loadtxt('./data/Outcn_9_000100000000.dat'))
 # cn_9 = orbitalelements(np.loadtxt('./data/Outcn_9_000000000000.dat'))
 
 no_damping_1 = orbitalelements(np.loadtxt('./data/Outno_damping_2_000100000000.dat'))
-# no_damping_1 = np.log10(no_damping_1)
+no_damping_1 = np.log10(no_damping_1)
 
 ida_data = [ida_4, ida_5, ida_7, ida_8, ida_9]
 cn_data = [cn_4, cn_5, cn_7, cn_8, cn_9]
@@ -128,7 +128,7 @@ ax[2].set_ylabel(r'mass (${M_e}$)')
 ax[2].set_ylim(0)
 ax[2].legend()
 
-fig.savefig('/home/john/summerproject/img/genga_scatterL.pdf', bbox_inches='tight')
+# fig.savefig('/home/john/summerproject/img/genga_scatterL.pdf', bbox_inches='tight')
 # %%
 ida_histograms = []
 cn_histograms = []
@@ -192,17 +192,17 @@ sns.distplot(no_damping_1[:,2], color='tab:green', hist_kws={"histtype": "step",
 # ax[2].hist([ida_data_x[:,2], cn_data_x[:,2]], 20, color=['tab:blue','tab:orange'])
 
 
-ax[0].set_xlabel('semi-major axis (log(AU))')
+ax[0].set_xlabel('log(a/AU)')
 # ax[0].set_xlim(0)
 ax[0].legend(loc='upper left')
 
-ax[1].set_xlabel('eccentricity (log)')
+ax[1].set_xlabel('log(e)')
 ax[1].axvline(np.log10(0.05), linestyle='--', c='black')
 # ax[1].axvline(0.05, linestyle='--', c='black')
 
 # ax[2].hist([ida_4[:,2], cn_4[:,2]], 20, label=['IDA', 'CN'])
 # ax[2].hist([ida_4[:,2], cn_4[:,2]], 20, label=['IDA', 'CN'])
-ax[2].set_xlabel('inclination (log)')
+ax[2].set_xlabel('log(i)')
 ax[2].axvline(np.log10(0.05), linestyle='--', c='black')
 # ax[2].axvline(0.05, linestyle='--', c='black')
 # ax[2].set_ylim(0,3000)

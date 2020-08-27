@@ -12,7 +12,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 # %%
 data_ida = np.reshape(np.array(pd.read_csv('./data/dataida_mars_3.csv')), (-1, 101, 6))[::3000]
-data_cn = np.reshape(np.array(pd.read_csv('./data/datacn_mars_3.csv')), (-1, 101, 6))[::3000]
+data_ida = np.reshape(np.array(pd.read_csv('./data/datacn_mars_3.csv')), (-1, 101, 6))[::3000]
+# data_ida = np.array(pd.read_csv('./data/datacn_1body.csv'))
+# data_cn = np.array(pd.read_csv('./data/datacn_1body.csv'))
 times = data_ida[:,0,1]
 data_all = [data_ida, data_cn]
 # %%
