@@ -22,15 +22,15 @@ G = 4*np.pi**2
 mstar = 1
 mplanet = 1e29/1.989e33
 dt = 0.02
-r = 1
+r = 5
 sigma = 17000*r**(-1/2)*au**2/mstarkg
 lim = 1.2
 mu = G*mstar
-noutputs = 50000
+noutputs = 500000
 totaltime = noutputs*dt
 h = 0.05
 e = 0.0
-i = 0.14
+i = 0.0
 ehat = e/h
 ihat = i/h
 r_p = r*(1-e) # perihelion
@@ -124,10 +124,10 @@ euler_results = euler(noutputs, e, i, h, dt, t_wave, ida)
 fig, ax = plt.subplots(1, figsize=(9,7))
 # ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, euler_results[0], label=r"$t_{ecc}$")
 # ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, e_rk, linestyle='-', label="RK")
-ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, euler_results[1], c='tab:blue', label=r"$t_{inc}$")
-ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_rk, linestyle='-', c='tab:orange', label="RK")
-# ax.plot(genga_t, genga_e, linestyle='--', c='tab:red', label='genga')
-ax.axhline(h, c='black', label='H/r')
+# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, euler_results[1], c='tab:blue', label=r"$t_{inc}$")
+# ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, i_rk, linestyle='-', c='tab:orange', label="RK")
+ax.plot(np.arange(0,noutputs,1)*dt/2/np.pi*omegak, a,)
+# ax.axhline(h, c='black', label='H/r')
 ax.set_xlabel('time (years)')
 ax.set_ylabel('e')
 ax.set_xlim(0)

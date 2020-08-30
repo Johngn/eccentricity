@@ -207,7 +207,7 @@ ax[2].axvline(np.log10(0.05), linestyle='--', c='black')
 # ax[2].axvline(0.05, linestyle='--', c='black')
 # ax[2].set_ylim(0,3000)
 
-fig.savefig('/home/john/summerproject/img/dist_sum.pdf', bbox_inches='tight')
+# fig.savefig('/home/john/summerproject/img/dist_sum.pdf', bbox_inches='tight')
 # %%
 data = np.loadtxt('./data/Outida_300_000010000000.dat')
 

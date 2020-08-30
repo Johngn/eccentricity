@@ -11,9 +11,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 # %%
-data_ida = np.array(pd.read_csv('./data/dataida_1body.csv'))
-data_cn = np.array(pd.read_csv('./data/datacn_1body.csv'))
+data_ida = np.array(pd.read_csv('./data/dataida_1body2.csv'))
+data_cn = np.array(pd.read_csv('./data/datacn_1body2.csv'))
 
+fig, axes = plt.subplots(1, figsize=(8, 3))
+axes.plot(data_ida[:,1], data_cn[:,3] - data_ida[:,3])
+# axes.plot(data_cn[:,1], data_cn[:,3])
+axes.set_xlabel('years')
+axes.set_ylabel('AU')
+
+# fig.savefig('./img/a_diff.png', bbox_inches='tight')
+# %%
 time_steps = 50001
 n_planets = 1
 
@@ -59,6 +67,7 @@ data_cn = np.reshape(data_cn_new, (-1, n_planets, 6))[::100]
 #     data_nd_new[data_mask] = data_nd[planet0_mask]
     
 # data_nd = np.reshape(data_nd_new, (-1, n_planets, 6))[::100]
+
 # %%
 solar_to_earth_mass = 1.99e30/5.97e24
 times = data_cn[:,0,1]
@@ -104,17 +113,17 @@ def animate(i):
     planets_cn_e.set_data(data_cn[i,:,3], data_cn[i,:,4])
     # planets_nd_e.set_data(data_nd[i,:,3], data_nd[i,:,4])
     
-    planets_ida_i.set_data(data_ida[i,:,3], data_ida[i,:,5])
-    planets_cn_i.set_data(data_cn[i,:,3], data_cn[i,:,5])
-    # planets_nd_i.set_data(data_nd[i,:,3], data_nd[i,:,5])
-    
-    planets_ida_m.set_data(data_ida[i,:,3], data_ida[i,:,2]*solar_to_earth_mass)
-    planets_cn_m.set_data(data_cn[i,:,3], data_cn[i,:,2]*solar_to_earth_mass)
+        # planets_ida_i.set_data(data_ida[i,:,3], data_ida[i,:,5])
+        # planets_cn_i.set_data(data_cn[i,:,3], data_cn[i,:,5])
+        # # planets_nd_i.set_data(data_nd[i,:,3], data_nd[i,:,5])
+        
+        # planets_ida_m.set_data(data_ida[i,:,3], data_ida[i,:,2]*solar_to_earth_mass)
+        # planets_cn_m.set_data(data_cn[i,:,3], data_cn[i,:,2]*solar_to_earth_mass)
     # planets_nd_m.set_data(data_nd[i,:,3], data_nd[i,:,2]*solar_to_earth_mass)
     
     text.set_text(r'{} $\times 10^3$ years'.format(int(times[i]/1e3)))
-    return planets_cn_e, planets_cn_i
-    
+    return planets_cn_e, planets_ida_e
+
 im_ani = FuncAnimation(fig, animate, frames=len(data_ida), interval=1)
 # %%
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
