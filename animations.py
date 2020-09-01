@@ -11,19 +11,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 # %%
-data_ida = np.array(pd.read_csv('./data/dataida_1body2.csv'))
-data_cn = np.array(pd.read_csv('./data/datacn_1body2.csv'))
+data_ida = np.array(pd.read_csv('./data/dataida1.csv'))
+data_cn = np.array(pd.read_csv('./data/datacn_mars_4.csv'))
 
-fig, axes = plt.subplots(1, figsize=(8, 3))
-axes.plot(data_ida[:,1], data_cn[:,3] - data_ida[:,3])
-# axes.plot(data_cn[:,1], data_cn[:,3])
-axes.set_xlabel('years')
-axes.set_ylabel('AU')
-
-# fig.savefig('./img/a_diff.png', bbox_inches='tight')
-# %%
 time_steps = 50001
-n_planets = 1
+n_planets = 100
 
 data_ida_new = np.ones((time_steps*n_planets, 6))*-1
 data_cn_new = np.ones((time_steps*n_planets, 6))*-1
@@ -49,87 +41,87 @@ for i in range(n_planets):
 data_ida = np.reshape(data_ida_new, (-1, n_planets, 6))[::100]
 data_cn = np.reshape(data_cn_new, (-1, n_planets, 6))[::100]
 # %%
-# data_nd = np.array(pd.read_csv('./data/datano_damping_2.csv'))
+data_nd = np.array(pd.read_csv('./data/datano_damping_2.csv'))
 
-# time_steps = 50006
-# n_planets = 100
+time_steps = 50006
+n_planets = 100
 
-# data_nd_new = np.ones((time_steps*n_planets, 6))*-1
-# nd_mask = np.zeros(time_steps*n_planets, dtype=bool)
+data_nd_new = np.ones((time_steps*n_planets, 6))*-1
+nd_mask = np.zeros(time_steps*n_planets, dtype=bool)
 
-# for i in range(n_planets):
+for i in range(n_planets):
     
-#     planet0_mask = data_nd[:,0] == i
-#     mask_len = np.count_nonzero(planet0_mask)
+    planet0_mask = data_nd[:,0] == i
+    mask_len = np.count_nonzero(planet0_mask)
     
-#     data_mask = np.zeros(time_steps*n_planets, dtype=bool)
-#     data_mask[i:n_planets*mask_len:n_planets] = True
-#     data_nd_new[data_mask] = data_nd[planet0_mask]
+    data_mask = np.zeros(time_steps*n_planets, dtype=bool)
+    data_mask[i:n_planets*mask_len:n_planets] = True
+    data_nd_new[data_mask] = data_nd[planet0_mask]
     
-# data_nd = np.reshape(data_nd_new, (-1, n_planets, 6))[::100]
+data_nd = np.reshape(data_nd_new, (-1, n_planets, 6))[::100]
 
 # %%
 solar_to_earth_mass = 1.99e30/5.97e24
-times = data_cn[:,0,1]
+times = data_ida[:,5,1] # pick row that has data for all times
 
-fig, axes = plt.subplots(1, figsize=(8, 4))
-# fig.subplots_adjust(hspace=0)
-axes.set_xlim(-0,8)
-# axes[0].set_ylim(0,0.35)
-axes.set_ylabel("eccentricity")
+fig, axes = plt.subplots(3, figsize=(8, 8))
 
-# axes[1].set_xlim(-0,8)
-# # axes[1].set_ylim(0,0.2)
-# axes[1].set_ylabel("inclination")
+ms = 3
+alpha = 0.5
 
-# axes[2].set_xlim(-0,8)
-# # axes[2].set_ylim(0,2.5)
-# axes[2].set_xlabel("semi-major axis")
-# axes[2].set_ylabel("mass")
+planets_ida_e, = axes[0].plot([], [], "o", ms=ms, alpha=alpha, label="Ida")
+planets_cn_e, = axes[0].plot([], [], "o", ms=ms, alpha=alpha, label="CN")
+planets_nd_e, = axes[0].plot([], [], "o", ms=ms, alpha=alpha, label="no damping")
 
-ms = 10
-alpha = 0.9
+planets_ida_i, = axes[1].plot([], [], "o", ms=ms, alpha=alpha, label="Ida")
+planets_cn_i, = axes[1].plot([], [], "o", ms=ms, alpha=alpha, label="CN")
+planets_nd_i, = axes[1].plot([], [], "o", ms=ms, alpha=alpha, label="no damping")
 
-planets_ida_e, = axes.plot([], [], "o", ms=ms, alpha=alpha, label="Ida")
-planets_cn_e, = axes.plot([], [], "o", ms=ms, alpha=alpha, label="CN")
-# planets_nd_e, = axes[0].plot([], [], "o", ms=ms, alpha=alpha, label="no damping")
+planets_ida_m, = axes[2].plot([], [], "o", ms=ms, alpha=alpha, label="Ida")
+planets_cn_m, = axes[2].plot([], [], "o", ms=ms, alpha=alpha, label="CN")
+planets_nd_m, = axes[2].plot([], [], "o", ms=ms, alpha=alpha, label="no damping")
 
-# planets_ida_i, = axes[1].plot([], [], "o", ms=ms, alpha=alpha, label="Ida")
-# planets_cn_i, = axes[1].plot([], [], "o", ms=ms, alpha=alpha, label="CN")
-# # planets_nd_i, = axes[1].plot([], [], "o", ms=ms, alpha=alpha, label="no damping")
+axes[0].set_xlim(-0,8)
+axes[0].set_ylim(0,0.35)
+axes[0].set_ylabel("eccentricity")
 
-# planets_ida_m, = axes[2].plot([], [], "o", ms=ms, alpha=alpha, label="Ida")
-# planets_cn_m, = axes[2].plot([], [], "o", ms=ms, alpha=alpha, label="CN")
-# planets_nd_m, = axes[2].plot([], [], "o", ms=ms, alpha=alpha, label="no damping")
+text = axes[0].text(2.9, .28, '', fontsize=12)
 
-text = axes.text(2.2, .8, '', fontsize=15)
+axes[1].set_xlim(-0,8)
+axes[1].set_ylim(0,0.2)
+axes[1].set_ylabel("inclination")
 
-axes.legend()
-# axes[1].legend()
-# axes[2].legend()
+axes[2].set_xlim(-0,8)
+axes[2].set_ylim(0,2.5)
+axes[2].set_xlabel("semi-major axis")
+axes[2].set_ylabel("mass")
+
+axes[0].legend()
+axes[1].legend()
+axes[2].legend()
 
 def animate(i):
     planets_ida_e.set_data(data_ida[i,:,3], data_ida[i,:,4])
     planets_cn_e.set_data(data_cn[i,:,3], data_cn[i,:,4])
-    # planets_nd_e.set_data(data_nd[i,:,3], data_nd[i,:,4])
+    planets_nd_e.set_data(data_nd[i,:,3], data_nd[i,:,4])
     
-        # planets_ida_i.set_data(data_ida[i,:,3], data_ida[i,:,5])
-        # planets_cn_i.set_data(data_cn[i,:,3], data_cn[i,:,5])
-        # # planets_nd_i.set_data(data_nd[i,:,3], data_nd[i,:,5])
-        
-        # planets_ida_m.set_data(data_ida[i,:,3], data_ida[i,:,2]*solar_to_earth_mass)
-        # planets_cn_m.set_data(data_cn[i,:,3], data_cn[i,:,2]*solar_to_earth_mass)
-    # planets_nd_m.set_data(data_nd[i,:,3], data_nd[i,:,2]*solar_to_earth_mass)
+    planets_ida_i.set_data(data_ida[i,:,3], data_ida[i,:,5])
+    planets_cn_i.set_data(data_cn[i,:,3], data_cn[i,:,5])
+    planets_nd_i.set_data(data_nd[i,:,3], data_nd[i,:,5])
+    
+    planets_ida_m.set_data(data_ida[i,:,3], data_ida[i,:,2]*solar_to_earth_mass)
+    planets_cn_m.set_data(data_cn[i,:,3], data_cn[i,:,2]*solar_to_earth_mass)
+    planets_nd_m.set_data(data_nd[i,:,3], data_nd[i,:,2]*solar_to_earth_mass)
     
     text.set_text(r'{} $\times 10^3$ years'.format(int(times[i]/1e3)))
     return planets_cn_e, planets_ida_e
 
-im_ani = FuncAnimation(fig, animate, frames=len(data_ida), interval=1)
+animation = FuncAnimation(fig, animate, frames=len(data_ida), interval=1)
 # %%
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 f = f'vid/genga_scatter_a1.mp4' 
 writervideo = FFMpegWriter(fps=30) # ffmpeg must be installed
-im_ani.save(f, writer=writervideo)
+animation.save(f, writer=writervideo)
 # %%
 data_all = [data_ida, data_cn, data_nd]
 
@@ -159,5 +151,4 @@ animation = FuncAnimation(fig, animate, frames=len(data_ida), fargs=(data_all,),
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 writervideo = FFMpegWriter(fps=30) # ffmpeg must be installed
 animation.save('vid/genga_hist_3.mp4', writer=writervideo)
-
 # animation.save('vid/genga_hist_4.gif', writer='imagemagick', fps=60)
